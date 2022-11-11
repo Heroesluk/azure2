@@ -1,0 +1,8 @@
+  http://www.last.fm/api/auth/?api_key=d6e02ae58fcf6daaea788ce99c879f9c&cb=http://example.com
+  http://example.com/?token=sWL8wql9-FldJW8KG0k7hqK_kMdQGDdj
+
+
+
+  JSON: /2.0/?method=album.getinfo&api_key=d6e02ae58fcf6daaea788ce99c879f9c&artist=Cher&album=Believe&format=json
+
+   /2.0/?method=user.gettopalbums&limit=100&user=heroesluk&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json
