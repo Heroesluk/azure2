@@ -45,8 +45,16 @@ def check_if_close(c1,c2):
     hue1,hue2 = c1[0]*359,c2[0]*359
     #if abs(hue1-hue2)<50:
         #print(c2,c1,'value', (abs(hue1-hue2)<50),c1[1],(c1[2]/255))
+    distance = abs(hue1-hue2)
+    if distance<50:
+        if distance == 0:
+            multiplier = 1
+        else:
+            multiplier = 1 / distance
 
-    return (abs(hue1-hue2)<50)*c2[1]*(c2[2]/255)
+        return multiplier*c2[1]*(c2[2]/255)
+
+    return  0
 
 
 #hsv H:0-1 S:0-1 V: 0-255
@@ -66,11 +74,8 @@ data2 = list( colorsys.rgb_to_hsv(i[0],i[1],i[2]) for i in im2.getdata())
 
 
 im = Image.new('RGB', (im_width, im_height))
-color = (0,43,255)
+color = (255, 204, 255)
 color_conv = colorsys.rgb_to_hsv(color[0],color[1],color[2])
-print(color_conv,'0.6272727272727273, 0.7801418439716312, 141')
-
-
 
 
 album_count = {}
@@ -92,25 +97,26 @@ for name in os.listdir('AlbumCovers/'):
     for pixel in data2:
             count += check_if_close(color_conv, pixel)
 
-    print(name, count)
     album_count[name] = count
 
 
 
 c = Counter(album_count)
-print(c.most_common())
 imgs = []
 number = 0
 for album,count in c.most_common():
     temp = Image.open('AlbumCovers/{}'.format(album))
     imgs.append(temp)
 
-    if number>=9:
+    if number>=16:
         break
 
     number+=1
 
-create_maxtrix(imgs,3)
+for album,count in c.most_common():
+    print(album,count)
+
+create_maxtrix(imgs,4)
 
 
 ##make reference hsv value
