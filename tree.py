@@ -34,16 +34,32 @@ def convert_to_jpg(name, new_name):
 
 
 def download_album_covers():
-    with open('Albums/albums1.json','r') as f:
+    errors = []
+
+    with open('Albums/albums3.json','r') as f:
        data = json.load(f)
     for album in data['topalbums']['album']:
 
-        img = re.get(album['image'][1]['#text'])
+        s,m,l = album['image'][0]['#text'],album['image'][1]['#text'],album['image'][2]['#text']
+        if len(m)>0:
+            img = re.get(album['image'][1]['#text'])
+        elif len(s)>0:
+            img = re.get(album['image'][2]['#text'])
+        elif len(l)>0:
+            img = re.get(album['image'][3]['#text'])
+        else:
+            print('no image for', album)
+
+            continue
+
         img_type = album['image'][1]['#text'].split('.')[-1]
 
         if img.status_code == 200:
-            with open('AlbumCovers/{}.{}'.format(album['name'], img_type), 'wb') as f:
-                f.write(img.content)
+            try:
+                with open('AlbumCovers/{}.{}'.format(album['name'], img_type), 'wb') as f:
+                    f.write(img.content)
+            except OSError as e:
+                print(album['image'], e)
 
         else:
             print(album['artist']['name'], album['name'], album['playcount'], album['image'][1]['#text'])
@@ -64,13 +80,17 @@ def convert_from_png():
             try:
                 if file_name not in os.listdir('AlbumCovers/'):
                     rgb_im.save('AlbumCovers/{}'.format(file_name))
-            except ValueError:
+            except ValueError or OSError:
                 print(file_name,'sex',file)
                 exit()
 
             os.remove('AlbumCovers/{}'.format(file))
 
 
-convert_from_png()
+#convert_from_png()
 
-
+os.chdir('AlbumCovers/')
+for file in os.listdir():
+    if os.stat(file.rstrip()).st_size == 0:
+        print("removing: ",file)
+        os.remove(file)
