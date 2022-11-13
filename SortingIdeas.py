@@ -46,11 +46,11 @@ def check_if_close(c1,c2):
     #if abs(hue1-hue2)<50:
         #print(c2,c1,'value', (abs(hue1-hue2)<50),c1[1],(c1[2]/255))
     distance = abs(hue1-hue2)
-    if distance<50:
+    if distance<25:
         if distance == 0:
             multiplier = 1
         else:
-            multiplier = 1 / distance
+            multiplier = 1
 
         return multiplier*c2[1]*(c2[2]/255)
 
@@ -68,13 +68,8 @@ def draw_hsv():
 
     im.show()
 
-
-im2 = Image.open('AlbumCovers/Karakai.jpg')
-data2 = list( colorsys.rgb_to_hsv(i[0],i[1],i[2]) for i in im2.getdata())
-
-
 im = Image.new('RGB', (im_width, im_height))
-color = (255, 204, 255)
+color = (13, 255, 0)
 color_conv = colorsys.rgb_to_hsv(color[0],color[1],color[2])
 
 
@@ -108,7 +103,7 @@ for album,count in c.most_common():
     temp = Image.open('AlbumCovers/{}'.format(album))
     imgs.append(temp)
 
-    if number>=16:
+    if number>=25:
         break
 
     number+=1
@@ -116,7 +111,7 @@ for album,count in c.most_common():
 for album,count in c.most_common():
     print(album,count)
 
-create_maxtrix(imgs,4)
+create_maxtrix(imgs,5)
 
 
 ##make reference hsv value

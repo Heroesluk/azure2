@@ -1,7 +1,12 @@
 import requests as re
 import json
-
+import os
+from sys import getsizeof
 from PIL import Image
+
+
+import time
+start_time = time.time()
 
 def get_albums():
     for i in range(10):
@@ -17,10 +22,10 @@ def get_albums():
 
 def test_album():
     with open('Albums/albums_test.json', 'w') as f:
-        data = re.get('http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&limit=20&page=&user=heroesluk&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json')
+        data = re.get(
+            'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&limit=20&page=&user=heroesluk&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json')
         albums = data.json()
         json.dump(albums, f)
-
 
 
 def convert_to_jpg(name, new_name):
@@ -32,41 +37,41 @@ def convert_to_jpg(name, new_name):
     bg.save(new_name)
 
 
+class Album():
+    def __init__(self,album_js,id):
+        self.id = str(id)
+        self.name = album_js['name']
+        self.artist = album_js['artist']['name']
+        self.playcount = int(album_js['playcount'])
+        self.rank = int(album_js['@attr']['rank'])
 
-def download_album_covers():
-    errors = []
+        image_link = album_js['image'][1]['#text']
+        extension = image_link[-3:]
 
-    with open('Albums/albums3.json','r') as f:
-       data = json.load(f)
-    for album in data['topalbums']['album']:
-
-        s,m,l = album['image'][0]['#text'],album['image'][1]['#text'],album['image'][2]['#text']
-        if len(m)>0:
-            img = re.get(album['image'][1]['#text'])
-        elif len(s)>0:
-            img = re.get(album['image'][2]['#text'])
-        elif len(l)>0:
-            img = re.get(album['image'][3]['#text'])
-        else:
-            print('no image for', album)
-
-            continue
-
-        img_type = album['image'][1]['#text'].split('.')[-1]
-
-        if img.status_code == 200:
-            try:
-                with open('AlbumCovers/{}.{}'.format(album['name'], img_type), 'wb') as f:
+        if len(image_link) > 0 and extension in ['jpg', 'png', 'gif']:
+            img = re.get(image_link)
+            if img.status_code == 200 and getsizeof(img) > 0:
+                with open("AlbumCovers/{}.{}".format(self.id, extension), 'wb') as f:
                     f.write(img.content)
-            except OSError as e:
-                print(album['image'], e)
+
+                    print(self.id,getsizeof(f))
+
+            else:
+                print(img.status_code, getsizeof(img), vars(self))
 
         else:
-            print(album['artist']['name'], album['name'], album['playcount'], album['image'][1]['#text'])
-            print(img.status_code)
+            print('no image link',vars(self))
 
+def parse_album_json(name,id_offset):
+    try:
+        with open('Albums/{}'.format(name), 'r') as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        print('incorrect directory name: {}'.format(name))
+        exit()
 
-import os
+    for ind,album in enumerate(data['topalbums']['album']):
+        temp = Album(album,ind+id_offset)
 
 def convert_from_png():
     for file in os.listdir('AlbumCovers/'):
@@ -75,22 +80,28 @@ def convert_from_png():
             im = Image.open('AlbumCovers/{}'.format(file))
             rgb_im = im.convert('RGB')
 
-            file_name = '{}.jpg'.format(file.split('.')[0])
-
+            file_name = '{}.jpg'.format(file[:-4])
             try:
                 if file_name not in os.listdir('AlbumCovers/'):
                     rgb_im.save('AlbumCovers/{}'.format(file_name))
+                    os.remove('AlbumCovers/{}'.format(file))
+
             except ValueError or OSError:
-                print(file_name,'sex',file)
+                print(file_name, 'sex', file)
                 exit()
 
-            os.remove('AlbumCovers/{}'.format(file))
 
 
-#convert_from_png()
+def _all():
+    offset = 0
+    for file in os.listdir('Albums/'):
+        parse_album_json(file,offset)
+        print(file, ' completed')
+        offset+=200
 
-os.chdir('AlbumCovers/')
-for file in os.listdir():
-    if os.stat(file.rstrip()).st_size == 0:
-        print("removing: ",file)
-        os.remove(file)
+
+convert_from_png()
+print("--- %s seconds ---" % (time.time() - start_time))
+
+
+
