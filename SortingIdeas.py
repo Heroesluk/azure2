@@ -1,118 +1,74 @@
-
-from PIL import  Image, ImageColor, UnidentifiedImageError
+from PIL import Image, ImageColor, UnidentifiedImageError
 import colorsys
 import os
 import random
 from collections import Counter
 from Mosaic import create_maxtrix
+from ColorAnalysisAlgorithms import check_if_close_color, check_black_amount, check_white_amount, check_gray_scale
+
+# hsv H:0-1 S:0-1 V: 0-255
+
 im_width, im_height = 900, 900
-
-
-def display_color_band():
-
-    im_width, im_height = 1500, 200
-    im = Image.new('RGB', (im_width, im_height))
-
-    colours_length = 100
-    colours = []
-    for i in range(0, colours_length):
-        colours.append(
-            (
-                random.randrange(0, 359),
-                random.randrange(99, 100),
-                random.randrange(99, 100)
-            )
-        )
-
-    print(colours)
-
-    offset = 0
-    for color in colours:
-        color = ImageColor.getrgb("hsv({}, {}%, {}%)".format(color[0],color[1],color[2]))
-        print(color)
-
-        for width in range(im_width // colours_length):
-            for height in range(im_height):
-                im.putpixel((offset + width, height), color)
-
-        offset += im_width // colours_length
-
-    im.show()
-
-#display_color_band()
-
-def check_if_close(c1,c2):
-    hue1,hue2 = c1[0]*359,c2[0]*359
-    #if abs(hue1-hue2)<50:
-        #print(c2,c1,'value', (abs(hue1-hue2)<50),c1[1],(c1[2]/255))
-    distance = abs(hue1-hue2)
-    if distance<25:
-        if distance == 0:
-            multiplier = 1
-        else:
-            multiplier = 1
-
-        return multiplier*c2[1]*(c2[2]/255)
-
-    return  0
-
-
-#hsv H:0-1 S:0-1 V: 0-255
-def draw_hsv():
-    for x in range(im_width):
-        for y in range(im_height):
-            hsv = (x / im_width, 1, int(y * 0.282))
-            rgb = tuple(int(i) for i in colorsys.hsv_to_rgb(hsv[0], hsv[1], hsv[2]))
-
-            im.putpixel((x, y), rgb)
-
-    im.show()
-
 im = Image.new('RGB', (im_width, im_height))
 color = (13, 255, 0)
-color_conv = colorsys.rgb_to_hsv(color[0],color[1],color[2])
+color_conv = colorsys.rgb_to_hsv(color[0], color[1], color[2])
 
 
-album_count = {}
-for name in os.listdir('AlbumCovers/'):
-    try:
-        im2 = Image.open('AlbumCovers/{}'.format(name))
-    except (UnidentifiedImageError, FileNotFoundError) as e:
-        print(name,'zjebalo sie!!!','\n'*5)
-        continue
 
 
-    try:
-        data2 = list(colorsys.rgb_to_hsv(i[0],i[1],i[2]) for i in im2.getdata())
-    except TypeError:
-        print(name,im2.getdata(),'\n'*5)
-        continue
+def analyze_color():
+    _albums_color_counter = {}
 
+    for name in os.listdir('AlbumCovers/'):
+        try:
+            im2 = Image.open('AlbumCovers/{}'.format(name))
+        except (UnidentifiedImageError, FileNotFoundError) as e:
+            print("couldn't open file: {}".format(name), '\n' * 5)
+            continue
+
+        try:
+            data2 = list(colorsys.rgb_to_hsv(i[0], i[1], i[2]) for i in im2.getdata())
+        except TypeError:
+            print("{} could be corrupted".format(name), '\n' * 5)
+            continue
+
+        count = 0
+        for pixel in data2:
+            count += check_black_amount(pixel) + check_white_amount(pixel)
+
+        _albums_color_counter[name] = count
+        
+    return _albums_color_counter
+
+
+
+def print_color_analysis(album_color_count):
+    c = Counter(album_color_count)
+    for album, count in c.most_common():
+        print(album, count)
+
+
+def generate_mosaic(size, album_color_count):
+
+    images = []
     count = 0
-    for pixel in data2:
-            count += check_if_close(color_conv, pixel)
+    for album, color_count in Counter(album_color_count).most_common():
+        temp = Image.open('AlbumCovers/{}'.format(album))
+        images.append(temp)
 
-    album_count[name] = count
+        if count >= size*size:
+            break
 
+        count += 1
 
-
-c = Counter(album_count)
-imgs = []
-number = 0
-for album,count in c.most_common():
-    temp = Image.open('AlbumCovers/{}'.format(album))
-    imgs.append(temp)
-
-    if number>=25:
-        break
-
-    number+=1
-
-for album,count in c.most_common():
-    print(album,count)
-
-create_maxtrix(imgs,5)
+    create_maxtrix(images, size)
 
 
-##make reference hsv value
-#compare in range to something
+#albums_color_counter = analyze_color()
+
+#print_color_analysis(albums_color_counter)
+#generate_mosaic(8,albums_color_counter)
+
+
+
+
