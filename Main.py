@@ -3,7 +3,7 @@ import colorsys
 import os
 import random
 from collections import Counter
-from Mosaic import create_maxtrix
+from CreateMosaicIMG import create_maxtrix
 from ColorAnalysisAlgorithms import check_if_close_color, check_black_amount, check_white_amount, check_gray_scale
 
 # hsv H:0-1 S:0-1 V: 0-255
@@ -14,6 +14,12 @@ color = (13, 255, 0)
 color_conv = colorsys.rgb_to_hsv(color[0], color[1], color[2])
 
 
+def create_im_obj(name):
+    try:
+        return Image.open('AlbumCovers/{}'.format(name))
+    except (UnidentifiedImageError, FileNotFoundError) as e:
+        print("couldn't open file: {}".format(name), '\n' * 5)
+        return False
 
 
 def analyze_color():
@@ -66,8 +72,12 @@ def generate_mosaic(size, album_color_count):
 
 albums_color_counter = analyze_color()
 
-#print_color_analysis(albums_color_counter)
-generate_mosaic(5,albums_color_counter)
+
+
+
+
+print_color_analysis(albums_color_counter)
+generate_mosaic(7,albums_color_counter)
 
 
 

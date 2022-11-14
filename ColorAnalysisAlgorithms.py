@@ -48,3 +48,5 @@ def check_white_amount(c1):
         return 1
 
     return 0
+
+

@@ -101,6 +101,5 @@ def _all():
         print(file, ' completed')
         offset += 200
 
-
 convert_from_png()
 print("--- %s seconds ---" % (time.time() - start_time))

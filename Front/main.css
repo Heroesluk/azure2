@@ -1,0 +1,26 @@
+
+#Mosaic {
+    display: grid;
+    grid-template-rows: 200px 200px 200px;
+    grid-template-columns: 200px 200px 200px;
+    align-items: center;
+    padding-left: 25%;
+
+}
+
+
+body {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.box {
+    background: #444;
+    border: 1px solid #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    color: #AAA;
+}
