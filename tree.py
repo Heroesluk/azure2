@@ -4,9 +4,10 @@ import os
 from sys import getsizeof
 from PIL import Image
 
-
 import time
+
 start_time = time.time()
+
 
 def get_albums():
     for i in range(10):
@@ -38,7 +39,7 @@ def convert_to_jpg(name, new_name):
 
 
 class Album():
-    def __init__(self,album_js,id):
+    def __init__(self, album_js, id):
         self.id = str(id)
         self.name = album_js['name']
         self.artist = album_js['artist']['name']
@@ -54,15 +55,16 @@ class Album():
                 with open("AlbumCovers/{}.{}".format(self.id, extension), 'wb') as f:
                     f.write(img.content)
 
-                    print(self.id,getsizeof(f))
+                    print(self.id, getsizeof(f))
 
             else:
                 print(img.status_code, getsizeof(img), vars(self))
 
         else:
-            print('no image link',vars(self))
+            print('no image link', vars(self))
 
-def parse_album_json(name,id_offset):
+
+def parse_album_json(name, id_offset):
     try:
         with open('Albums/{}'.format(name), 'r') as file:
             data = json.load(file)
@@ -70,8 +72,9 @@ def parse_album_json(name,id_offset):
         print('incorrect directory name: {}'.format(name))
         exit()
 
-    for ind,album in enumerate(data['topalbums']['album']):
-        temp = Album(album,ind+id_offset)
+    for ind, album in enumerate(data['topalbums']['album']):
+        temp = Album(album, ind + id_offset)
+
 
 def convert_from_png():
     for file in os.listdir('AlbumCovers/'):
@@ -91,17 +94,13 @@ def convert_from_png():
                 exit()
 
 
-
 def _all():
     offset = 0
     for file in os.listdir('Albums/'):
-        parse_album_json(file,offset)
+        parse_album_json(file, offset)
         print(file, ' completed')
-        offset+=200
+        offset += 200
 
 
 convert_from_png()
 print("--- %s seconds ---" % (time.time() - start_time))
-
-
-

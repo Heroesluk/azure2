@@ -34,7 +34,7 @@ def analyze_color():
 
         count = 0
         for pixel in data2:
-            count += check_black_amount(pixel) + check_white_amount(pixel)
+            count += check_black_amount(pixel)
 
         _albums_color_counter[name] = count
         
@@ -64,10 +64,10 @@ def generate_mosaic(size, album_color_count):
     create_maxtrix(images, size)
 
 
-#albums_color_counter = analyze_color()
+albums_color_counter = analyze_color()
 
 #print_color_analysis(albums_color_counter)
-#generate_mosaic(8,albums_color_counter)
+generate_mosaic(5,albums_color_counter)
 
 
 

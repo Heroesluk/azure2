@@ -11,7 +11,7 @@ def check_black_amount(c1):
     return 0
 
 
-
+#not completed
 def check_gray_scale(c1,low,high):
     # 0-255 - > 0-100
     saturation = c1[1]*100
