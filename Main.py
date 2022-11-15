@@ -57,9 +57,11 @@ def print_color_analysis(album_color_count):
 def generate_mosaic(size, album_color_count):
 
     images = []
+    images_paths = []
     count = 0
     for album, color_count in Counter(album_color_count).most_common():
         temp = Image.open('AlbumCovers/{}'.format(album))
+        images_paths.append(album)
         images.append(temp)
 
         if count >= size*size:
@@ -67,17 +69,15 @@ def generate_mosaic(size, album_color_count):
 
         count += 1
 
-    create_maxtrix(images, size)
+    return images_paths
+
+def main():
+    albums_color_counter = analyze_color()
+
+    print_color_analysis(albums_color_counter)
+    return generate_mosaic(5, albums_color_counter)
 
 
-albums_color_counter = analyze_color()
-
-
-
-
-
-print_color_analysis(albums_color_counter)
-generate_mosaic(7,albums_color_counter)
 
 
 

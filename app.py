@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
-import os
+import os, sys
+from Main import main
 app = Flask(__name__)
 
 
@@ -9,9 +10,14 @@ app.config['UPLOAD_FOLDER'] = IMG_FOLDER
 images = [i for i in os.listdir("static/images")]
 
 
+#learn how to upload files
+
+
 
 @app.route("/")
 def hello_world():
+    data = main()
+    print(data)
     print(IMG_FOLDER)
     return render_template('main.html')
 
