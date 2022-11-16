@@ -75,6 +75,10 @@ def parse_album_json(name, id_offset):
 
     for ind, album in enumerate(data['topalbums']['album']):
         temp = album['image'][1]['#text']
+        links.append(temp)
+
+
+    return links
 
 
 
@@ -103,20 +107,20 @@ def _all():
         print(file, ' completed')
         offset += 200
 
-parse_album_json('albums1.json',100)
+urls = parse_album_json('albums1.json',100)
 
 
 import asyncio
 import aiohttp
 
-urls = ['http://www.google.com', 'http://www.yahoo.com', 'http://www.bing.com']
 
 async def fetch(session, url):
     async with session.get(url) as resp:
-        return await resp.text()
+        return await resp.content.read()
         # Catch HTTP errors/exceptions here
 
 async def fetch_concurrent(urls):
+    count = 0
     loop = asyncio.get_event_loop()
     async with aiohttp.ClientSession() as session:
         tasks = []
@@ -125,6 +129,8 @@ async def fetch_concurrent(urls):
 
         for result in asyncio.as_completed(tasks):
             page = await result
+            print(count)
+            count+=1
             #Do whatever you want with results
 
 asyncio.run(fetch_concurrent(urls))
