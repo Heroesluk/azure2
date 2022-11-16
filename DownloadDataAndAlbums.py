@@ -65,6 +65,7 @@ class Album():
 
 
 def parse_album_json(name, id_offset):
+    links = []
     try:
         with open('Albums/{}'.format(name), 'r') as file:
             data = json.load(file)
@@ -73,7 +74,8 @@ def parse_album_json(name, id_offset):
         exit()
 
     for ind, album in enumerate(data['topalbums']['album']):
-        temp = Album(album, ind + id_offset)
+        temp = album['image'][1]['#text']
+
 
 
 def convert_from_png():
@@ -101,5 +103,30 @@ def _all():
         print(file, ' completed')
         offset += 200
 
-convert_from_png()
+parse_album_json('albums1.json',100)
+
+
+import asyncio
+import aiohttp
+
+urls = ['http://www.google.com', 'http://www.yahoo.com', 'http://www.bing.com']
+
+async def fetch(session, url):
+    async with session.get(url) as resp:
+        return await resp.text()
+        # Catch HTTP errors/exceptions here
+
+async def fetch_concurrent(urls):
+    loop = asyncio.get_event_loop()
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for u in urls:
+            tasks.append(loop.create_task(fetch(session, u)))
+
+        for result in asyncio.as_completed(tasks):
+            page = await result
+            #Do whatever you want with results
+
+asyncio.run(fetch_concurrent(urls))
+
 print("--- %s seconds ---" % (time.time() - start_time))
