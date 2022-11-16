@@ -14,20 +14,12 @@ color = (13, 255, 0)
 color_conv = colorsys.rgb_to_hsv(color[0], color[1], color[2])
 
 
-def create_im_obj(name):
-    try:
-        return Image.open('AlbumCovers/{}'.format(name))
-    except (UnidentifiedImageError, FileNotFoundError) as e:
-        print("couldn't open file: {}".format(name), '\n' * 5)
-        return False
-
-
 def analyze_color():
     _albums_color_counter = {}
 
-    for name in os.listdir('AlbumCovers/'):
+    for name in os.listdir('static/images/'):
         try:
-            im2 = Image.open('AlbumCovers/{}'.format(name))
+            im2 = Image.open('static/images/{}'.format(name))
         except (UnidentifiedImageError, FileNotFoundError) as e:
             print("couldn't open file: {}".format(name), '\n' * 5)
             continue
@@ -54,13 +46,14 @@ def print_color_analysis(album_color_count):
         print(album, count)
 
 
-def generate_mosaic(size, album_color_count):
+def generate_mosaic(size):
+    album_color_count = analyze_color()
 
     images = []
     images_paths = []
     count = 0
     for album, color_count in Counter(album_color_count).most_common():
-        temp = Image.open('AlbumCovers/{}'.format(album))
+        temp = Image.open('static/images/{}'.format(album))
         images_paths.append(album)
         images.append(temp)
 
@@ -71,11 +64,8 @@ def generate_mosaic(size, album_color_count):
 
     return images_paths
 
-def main():
-    albums_color_counter = analyze_color()
 
-    print_color_analysis(albums_color_counter)
-    return generate_mosaic(5, albums_color_counter)
+
 
 
 
