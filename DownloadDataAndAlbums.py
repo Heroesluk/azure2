@@ -7,19 +7,20 @@ from PIL import Image
 import time
 
 start_time = time.time()
+#heroesluk
 
-
-def get_albums():
+def get_albums(user):
     for i in range(10):
         with open('Albums/albums{}.json'.format(i), 'w') as f:
             data = re.get(
-                'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&limit=200&page={}&user=heroesluk&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json'.format(
-                    i))
+                'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&limit=200&page={}&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json'.format(
+                    i,user))
+
+
             albums = data.json()
             json.dump(albums, f)
 
-    print(data.content)
-
+    #print(data.content)
 
 
 
@@ -71,7 +72,7 @@ async def fetch_concurrent(urls,offset):
             #Do whatever you want with results
 
 
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+#asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 def _all():
     offset = 0
@@ -83,8 +84,6 @@ def _all():
         print(file, ' completed')
         offset += 200
 
-_all()
 
 
-print("--- %s seconds ---" % (time.time() - start_time))
 

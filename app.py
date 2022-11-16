@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 import os, sys
 from Main import generate_mosaic
+from DownloadDataAndAlbums import get_albums
 
 app = Flask(__name__)
 
@@ -14,6 +15,8 @@ images = [i for i in os.listdir("static/images")]
 
 @app.route("/")
 def hello_world():
+    get_albums('heroesluk')
+
     return render_template('main.html')
 
 
