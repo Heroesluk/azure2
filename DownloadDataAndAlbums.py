@@ -21,47 +21,6 @@ def get_albums():
     print(data.content)
 
 
-def test_album():
-    with open('Albums/albums_test.json', 'w') as f:
-        data = re.get(
-            'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&limit=20&page=&user=heroesluk&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json')
-        albums = data.json()
-        json.dump(albums, f)
-
-
-def convert_to_jpg(name, new_name):
-    im = Image.open(name)
-    bg = Image.new('RGB', im.size)
-    bg.paste(im)
-    bg.show()
-
-    bg.save(new_name)
-
-
-class Album():
-    def __init__(self, album_js, id):
-        self.id = str(id)
-        self.name = album_js['name']
-        self.artist = album_js['artist']['name']
-        self.playcount = int(album_js['playcount'])
-        self.rank = int(album_js['@attr']['rank'])
-
-        image_link = album_js['image'][1]['#text']
-        extension = image_link[-3:]
-
-        if len(image_link) > 0 and extension in ['jpg', 'png', 'gif']:
-            img = re.get(image_link)
-            if img.status_code == 200 and getsizeof(img) > 0:
-                with open("AlbumCovers/{}.{}".format(self.id, extension), 'wb') as f:
-                    f.write(img.content)
-
-                    print(self.id, getsizeof(f))
-
-            else:
-                print(img.status_code, getsizeof(img), vars(self))
-
-        else:
-            print('no image link', vars(self))
 
 
 def parse_album_json(name, id_offset):
@@ -82,28 +41,6 @@ def parse_album_json(name, id_offset):
 
 
     return links
-
-
-
-def convert_from_png():
-    for file in os.listdir('AlbumCovers/'):
-        if file.split('.')[-1] == 'png':
-
-            im = Image.open('AlbumCovers/{}'.format(file))
-            rgb_im = im.convert('RGB')
-
-            file_name = '{}.jpg'.format(file[:-4])
-            try:
-                if file_name not in os.listdir('AlbumCovers/'):
-                    rgb_im.save('AlbumCovers/{}'.format(file_name))
-                    os.remove('AlbumCovers/{}'.format(file))
-
-            except ValueError or OSError:
-                print(file_name, 'sex', file)
-                exit()
-
-
-
 
 
 import asyncio
