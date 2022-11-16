@@ -75,7 +75,10 @@ def parse_album_json(name, id_offset):
 
     for ind, album in enumerate(data['topalbums']['album']):
         temp = album['image'][1]['#text']
-        links.append(temp)
+
+
+        if len(temp)>0:
+            links.append(temp)
 
 
     return links
@@ -100,14 +103,7 @@ def convert_from_png():
                 exit()
 
 
-def _all():
-    offset = 0
-    for file in os.listdir('Albums/'):
-        parse_album_json(file, offset)
-        print(file, ' completed')
-        offset += 200
 
-urls = parse_album_json('albums1.json',100)
 
 
 import asyncio
@@ -119,8 +115,8 @@ async def fetch(session, url):
         return await resp.content.read()
         # Catch HTTP errors/exceptions here
 
-async def fetch_concurrent(urls):
-    count = 0
+async def fetch_concurrent(urls,offset):
+    count = offset
     loop = asyncio.get_event_loop()
     async with aiohttp.ClientSession() as session:
         tasks = []
@@ -129,10 +125,29 @@ async def fetch_concurrent(urls):
 
         for result in asyncio.as_completed(tasks):
             page = await result
-            print(count)
+
+            with open('AlbumCovers/{}.jpg'.format(count),'wb') as f:
+                f.write(page)
+
+
             count+=1
             #Do whatever you want with results
 
-asyncio.run(fetch_concurrent(urls))
+
+asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+def _all():
+    offset = 0
+    for file in os.listdir('Albums/'):
+        urls = parse_album_json(file, offset)
+        asyncio.run(fetch_concurrent(urls,offset))
+
+
+        print(file, ' completed')
+        offset += 200
+
+_all()
+
 
 print("--- %s seconds ---" % (time.time() - start_time))
+
