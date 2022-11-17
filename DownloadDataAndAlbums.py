@@ -61,8 +61,13 @@ def chunk(it, size):
 
 
 async def fetch(session, url):
+    print(url)
     async with session.get(url) as resp:
-        return await resp.content.read()
+        obj = await resp.content.read()
+        with open('AlbumCovers/{}'.format(url[-15:]), 'wb') as f:
+            f.write(obj)
+
+        return 0
 
 #  asynchronously download all images provided list of image links, and name them as index numbers
 async def fetch_concurrent(urls):
@@ -76,10 +81,6 @@ async def fetch_concurrent(urls):
         for result in asyncio.as_completed(tasks):
 
             page = await result
-
-            with open('AlbumCovers/{}.jpg'.format(count), 'wb') as f:
-                f.write(page)
-
             count+=1
 
 
@@ -91,6 +92,7 @@ def _all():
         asyncio.run(fetch_concurrent(urls_divided))
         time.sleep(3)
         print(ind)
+
 
 _all()
 
