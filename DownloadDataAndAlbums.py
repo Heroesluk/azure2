@@ -52,10 +52,17 @@ def get_all_small_album_img_links():
     return links
 
 
+from itertools import islice
+
+
+def chunk(it, size):
+    it = iter(it)
+    return iter(lambda: tuple(islice(it, size)), ())
+
+
 async def fetch(session, url):
     async with session.get(url) as resp:
         return await resp.content.read()
-        # Catch HTTP errors/exceptions here
 
 #  asynchronously download all images provided list of image links, and name them as index numbers
 async def fetch_concurrent(urls):
@@ -67,6 +74,7 @@ async def fetch_concurrent(urls):
             tasks.append(loop.create_task(fetch(session, u)))
 
         for result in asyncio.as_completed(tasks):
+
             page = await result
 
             with open('AlbumCovers/{}.jpg'.format(count), 'wb') as f:
@@ -75,17 +83,16 @@ async def fetch_concurrent(urls):
             count+=1
 
 
-
 def _all():
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     urls = get_all_small_album_img_links()
-    asyncio.run(fetch_concurrent(urls))
+    divided = chunk(urls, 200)
+    for ind, urls_divided in enumerate(divided):
+        asyncio.run(fetch_concurrent(urls_divided))
+        time.sleep(3)
+        print(ind)
 
-
-with open('albums.json', 'r') as file:
-    data = json.load(file)
-
-    print(data[2])
+_all()
 
 print("--- %s seconds ---" % (time.time() - start_time))
 #TODO: save images based on something other then index, since async make it impossible to guess based on name what album it is
