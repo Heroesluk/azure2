@@ -4,7 +4,7 @@ from PIL import Image
 def create_maxtrix(albums,matrix_size):
     #for now assume all images are same size
     #assuming album is Z times Z size
-    albums = [Image.open('AlbumCovers/{}'.format(i)) for i in albums]
+    albums = [Image.open('static/images/{}'.format(i)) for i in albums]
 
     album_size =  albums[0].size[0]
 
