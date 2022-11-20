@@ -6,6 +6,7 @@ from PIL import Image
 import asyncio
 import aiohttp
 import time
+from itertools import islice
 
 start_time = time.time()
 
@@ -33,8 +34,9 @@ def create_albums_json(user, number_of_albums):
         json.dump(head, f)
 
 
-def get_all_small_album_img_links():
+def get_all_album_img_links(size):
     links = []
+    names = []
     try:
         with open('albums.json', 'r') as file:
             data = json.load(file)
@@ -43,16 +45,17 @@ def get_all_small_album_img_links():
         exit()
 
     for ind, album in enumerate(data):
-        temp = album["image"][0]['#text']  # index 0 refers to image size in json,
+        temp = album["image"][size]['#text']  # size: 0 - small, 1- medium, 2 large 3 extra-large,
+        name = album['name']
         # 1 is to medium, and 2 big - > #text for some reason is where the image link is
 
-        if len(temp) > 0:  # check if link actually exist, if no then ignore album
+        if len(temp) > 0 and len(name) > 0:  # check if link actually exist, if no then ignore album
             links.append(temp)
+            names.append(name)
+        else:
+            print('error', temp, name)
 
-    return links
-
-
-from itertools import islice
+    return {i[0]: i[1] for i in zip(names, links)}
 
 
 def chunk(it, size):
@@ -60,14 +63,33 @@ def chunk(it, size):
     return iter(lambda: tuple(islice(it, size)), ())
 
 
-async def fetch(session, url):
-    print(url)
-    async with session.get(url) as resp:
+async def fetch(session, name_and_url):
+    async with session.get(name_and_url[1]) as resp:
         obj = await resp.content.read()
-        with open('AlbumCovers/{}'.format(url[-15:]), 'wb') as f:
-            f.write(obj)
+        try:
+            with open('AlbumCovers/{}.jpg'.format(name_and_url[0]), 'wb') as f:
+                f.write(obj)
+        except OSError:
+            # global urls
+            with open('AlbumCovers/{}.jpg'.format("".join(x for x in name_and_url[0] if x.isalnum())), 'wb') as f:
+                f.write(obj)
 
         return 0
+
+
+def divide(_urls):
+    def chunks(data, SIZE=10000):
+        it = iter(data)
+        for i in range(0, len(data), SIZE):
+            yield {k: data[k] for k in islice(it, SIZE)}
+
+    divided = []
+
+    for item in chunks(_urls, 200):
+        divided.append(item)
+
+    return divided
+
 
 #  asynchronously download all images provided list of image links, and name them as index numbers
 async def fetch_concurrent(urls):
@@ -75,27 +97,30 @@ async def fetch_concurrent(urls):
     loop = asyncio.get_event_loop()
     async with aiohttp.ClientSession() as session:
         tasks = []
-        for u in urls:
-            tasks.append(loop.create_task(fetch(session, u)))
+        for k, v in urls.items():
+            tasks.append(loop.create_task(fetch(session, (k, v))))
 
         for result in asyncio.as_completed(tasks):
-
             page = await result
-            count+=1
+            count += 1
 
 
 def _all():
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    urls = get_all_small_album_img_links()
-    divided = chunk(urls, 200)
+    urls = get_all_album_img_links(0)
+
+    divided = divide(urls)  # divide urls into 200 sub-dictionaries, which stops asyncio from making too much requests at the same time
+
+    # divided looks like -> [{album_name:album_link},{album_name:album_link}...]
     for ind, urls_divided in enumerate(divided):
         asyncio.run(fetch_concurrent(urls_divided))
-        time.sleep(3)
         print(ind)
+
+        time.sleep(3)
 
 
 _all()
 
 print("--- %s seconds ---" % (time.time() - start_time))
-#TODO: save images based on something other then index, since async make it impossible to guess based on name what album it is
-#i should probably serialize this json
+# TODO: save images based on something other then index, since async make it impossible to guess based on name what album it is
+# i should probably serialize this json

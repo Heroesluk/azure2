@@ -4,6 +4,8 @@ from PIL import Image
 def create_maxtrix(albums,matrix_size):
     #for now assume all images are same size
     #assuming album is Z times Z size
+    albums = [Image.open('AlbumCovers/{}'.format(i)) for i in albums]
+
     album_size =  albums[0].size[0]
 
     new_image = Image.new('RGB', (matrix_size *album_size, matrix_size * album_size), (250, 250, 250))
