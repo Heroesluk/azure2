@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 import os, sys
-from Main import generate_mosaic
+from color_check import generate_mosaic
 from DownloadDataAndAlbums import get_albums
 
 app = Flask(__name__)

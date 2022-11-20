@@ -8,6 +8,7 @@ import aiohttp
 import time
 from itertools import islice
 from colors import *
+from database import *
 
 start_time = time.time()
 
@@ -69,7 +70,7 @@ async def fetch(session, name_and_url: tuple):
     async with session.get(name_and_url[1]) as resp:
         obj = await resp.content.read()
         try:
-            with open('static/images/{}'.format(name_and_url[0]), 'wb') as f:
+            with open('AlbumCovers/{}.jpg'.format(name_and_url[0]), 'wb') as f:
                 f.write(obj)
         except OSError:
             print(name_and_url[0])
@@ -121,8 +122,10 @@ def download_album_covers(name_url_dict: dict):
         time.sleep(3)
 
 
-name_url_dict = get_all_album_img_links(0)
-download_album_covers(name_url_dict)
+#data = parse_json('albums.json')
+data_dict = readSqliteTable()
+print(data_dict)
+#download_album_covers(data_dict)
 
 
 
