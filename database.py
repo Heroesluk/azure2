@@ -1,9 +1,35 @@
 import sqlite3
 import json, time
 import os
+from typing import List
+import requests
 
 
-def parse_json(path):
+def create_albums_json(user: str, number_of_albums500: int, path: str):
+    concentrate = []
+    # divide request since lastfm api response breaks when requesting more then 500 albums per page
+    for page in range(1, number_of_albums500 + 1):
+        try:
+            data = requests.get(
+                'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&limit=500&page={}&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json'.format(
+                    page, user))
+            data.raise_for_status()
+
+            concentrate.append(data.json())
+        except requests.exceptions.HTTPError as error:
+            print(error)
+            return
+
+    # merge json files from memory into one
+    head = concentrate[0]['topalbums']['album']
+    for i in concentrate[1:]:
+        head += i['topalbums']['album']
+
+    with open(path, 'w') as f:
+        json.dump(head, f)
+
+
+def parse_json(path): # load parse data, before passing it to database
     with open(path, 'r') as file:
         data = json.load(file)
     data_p = []
@@ -13,7 +39,6 @@ def parse_json(path):
                        i['image'][0]['#text'], i['image'][1]['#text'], None))
 
     return data_p
-
 
 
 def insert_data(_data):
@@ -29,9 +54,7 @@ def insert_data(_data):
     con.close()
 
 
-import sqlite3
-
-def readSqliteTable():
+def read_rows(arguments: list = (1, 0, 0, 1, 0, 0,)) -> List[tuple]:
     try:
         sqliteConnection = sqlite3.connect('albums.db')
         cursor = sqliteConnection.cursor()
@@ -43,8 +66,8 @@ def readSqliteTable():
         print("Total rows are:  ", len(records))
         print("Printing each row")
 
-
-        album_dict = {row[0]:row[3] for row in records}
+        album_dict = [tuple(v for i, v in enumerate(row) if arguments[i]) for row in records]
+        print(album_dict)
         # for row in records:
         #     print("Id: ", row[0])
         #     print("Album: ", row[1])
@@ -76,12 +99,14 @@ def select_from_id_list(data):
     cursor = sqliteConnection.cursor()
 
     for i in data:
-        cursor.execute(sqlite_select_query,i )
+        cursor.execute(sqlite_select_query, i)
         records += cursor.fetchall()
 
     return records
 
 
-#[400:420]
-#select_from_id_list(_data)
+create_albums_json('heroesluk',5,'albums1.json')
 
+# [400:420]
+# select_from_id_list(_data)
+#read_rows()
