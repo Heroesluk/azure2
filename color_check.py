@@ -6,7 +6,6 @@ from CreateMosaicIMG import create_maxtrix
 from ColorAnalysisAlgorithms import check_if_close_color, check_black_amount, check_white_amount, check_gray_scale
 from colors import ColorPalette
 from database import select_from_id_list
-from DownloadDataAndAlbums import get_all_album_img_links, download_album_covers
 
 # hsv H:0-1 S:0-1 V: 0-255
 
@@ -65,10 +64,12 @@ def return_imgs_with_most_color(size, path, color):
 color = clr.PINK
 
 imgs = return_imgs_with_most_color(3, 'AlbumCovers', color)
-
+print(imgs)
 imgs = select_from_id_list(imgs)
+print(imgs)
+
+exit()
 
 album_dict = {'big' + str(i[0]): i[1] for i in imgs}
-download_album_covers(album_dict)
 
 # create_maxtrix(album_dict.keys(), 3)

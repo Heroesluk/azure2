@@ -44,7 +44,9 @@ def download_album_covers(urls):
     # the same time
 
     # divided looks like -> [{album_name:album_link},{album_name:album_link}...]
-    for ind, urls_divided in enumerate(urls):
+    data_divided = chunk(urls, 200)
+
+    for ind, urls_divided in enumerate(data_divided):
         asyncio.run(fetch_concurrent(urls_divided))
         print(ind)
 
@@ -57,9 +59,8 @@ def chunk(it, size):
 
 
 # data = parse_json('albums.json')
-data_dict = read_rows()[:400]
-divided = chunk(data_dict, 200)
-# download_album_covers(divided)
+data = read_rows()[:400]
+download_album_covers(data)
 
 
 print("--- %s seconds ---" % (time.time() - start_time))
