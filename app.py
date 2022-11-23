@@ -41,7 +41,6 @@ def login():
 @app.route("/<lng>", methods=["GET", "POST"])
 def image(lng):
 
-
     data = [os.path.join('static/images', i) for i in os.listdir('static/images')][:int(lng)]
 
     return render_template("index.html", image_file=data)
