@@ -31,16 +31,18 @@ def hello_world():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        user = request.form["matrix_size"]
-        return redirect(url_for("user", usr=user))
+        lenght = (request.form["matrix_size"])
+        return redirect(url_for("image", lng=lenght))
 
     else:
         return render_template("login.html")
 
 
-@app.route("/image", methods=["GET", "POST"])
-def image():
-    data = [os.path.join('static/images', i) for i in os.listdir('static/images')]
+@app.route("/<lng>", methods=["GET", "POST"])
+def image(lng):
+
+
+    data = [os.path.join('static/images', i) for i in os.listdir('static/images')][:int(lng)]
 
     return render_template("index.html", image_file=data)
 
