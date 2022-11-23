@@ -31,8 +31,8 @@ def hello_world():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        user = int(request.form["matrix_size"])
-        return redirect(url_for("index", size=user))
+        user = request.form["matrix_size"]
+        return redirect(url_for("user", usr=user))
 
     else:
         return render_template("login.html")
