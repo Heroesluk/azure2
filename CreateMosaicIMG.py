@@ -1,10 +1,13 @@
+import os
+
 from PIL import Image
 #Read the two images
 
-def create_maxtrix(albums,matrix_size):
+
+def create_maxtrix(matrix_size):
     #for now assume all images are same size
     #assuming album is Z times Z size
-    albums = [Image.open('static/images/{}'.format(i)) for i in albums]
+    albums = [Image.open('static/images/{}'.format(i)) for i in os.listdir('static/images')]
 
     album_size =  albums[0].size[0]
 
@@ -19,6 +22,11 @@ def create_maxtrix(albums,matrix_size):
     new_image.save("merged_image.jpg", "JPEG")
 
     new_image.show()
+
+    for files in os.listdir('static/images'):
+        os.remove('static/images/{}'.format(files))
+        
+
 
 
 

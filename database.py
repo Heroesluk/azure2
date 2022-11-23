@@ -29,14 +29,16 @@ def create_albums_json(user: str, number_of_albums_times_500: int, path: str):
         json.dump(head, f)
 
 
-def parse_json(path): # load parse data, before passing it to database
+def parse_json(path):  # load parse data, before passing it to database
     with open(path, 'r') as file:
         data = json.load(file)
     data_p = []
 
     for i in data:
-        data_p.append((i['name'], i['artist']['name'],
-                       i['image'][0]['#text'], i['image'][2]['#text'], None))
+        if len(i['image'][0]['#text'])>0:
+
+            data_p.append((i['name'], i['artist']['name'],
+                    i['image'][0]['#text'], i['image'][2]['#text'], None))
 
     return data_p
 
@@ -54,7 +56,7 @@ def insert_data(_data):
     con.close()
 
 
-def read_rows(cols_to_fetch: list = (0, 1, 0, 0, 0, 0,)) -> List[tuple]:
+def read_rows(cols_to_fetch: list = (1, 0, 0, 0, 1, 0,)) -> List[tuple]:
     try:
         sqliteConnection = sqlite3.connect('albums.db')
 
@@ -68,7 +70,7 @@ def read_rows(cols_to_fetch: list = (0, 1, 0, 0, 0, 0,)) -> List[tuple]:
 
         # return values only from "1" rows
         albums = [tuple(v for i, v in enumerate(row) if cols_to_fetch[i]) for row in records]
-        #print(album_dict)
+        # print(album_dict)
         # for row in records:
         #     print("Id: ", row[0])
         #     print("Album: ", row[1])
@@ -93,7 +95,7 @@ def read_rows(cols_to_fetch: list = (0, 1, 0, 0, 0, 0,)) -> List[tuple]:
 
 # id directly coresponds to filenames in AlbumCovers
 def select_from_id_list(data):
-    data = [(i.split('.')[0],) for i in data]
+    data = [(i.split('.')[0],) for i in data]  # extract id from full file name
     records = []
     sqlite_select_query = """SELECT ID, big_img_link from AlbumList 
         WHERE ID=?"""
@@ -111,16 +113,20 @@ def clear_table():
     conn = sqlite3.connect('albums.db')
     cursor = conn.cursor()
     cursor.execute("""DELETE FROM AlbumList""")
+    # set autoincrement id value to 0
+    cursor.execute("""update sqlite_sequence
+SET seq = 0 where name = 'AlbumList';""")
     conn.commit()
     conn.close()
 
-data = parse_json('albums1.json')
 
-insert_data(data)
 
-#create_albums_json('heroesluk',5,'albums1.json')
+clear_table()
+# create_albums_json('heroesluk',5,'albums1.json')
+insert_data(parse_json('albums.json'))
 
 # [400:420]
 # select_from_id_list(_data)
-for i in read_rows():
-    print(i)
+
+
+### execute querry function
