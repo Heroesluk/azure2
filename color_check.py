@@ -29,6 +29,7 @@ def color_count_in_img(img_full_path, color, type_of_analysis):
     count = 0
 
     for pixel in im_hsv:
+        #print(pixel,color_conv)
         if type_of_analysis=='color':
 
             count += check_if_close_color(pixel, color_conv)
@@ -60,12 +61,12 @@ def return_imgs_with_most_color(size, path, color):  # size refers to square-mos
 
     images_paths = []
     count = 0
-    print(Counter(albums_color_counter).most_common())
+    print(Counter(albums_color_counter).most_common()[:49])
     for album, color_count in Counter(albums_color_counter).most_common():
         temp = Image.open('{}/{}'.format(path, album))
         images_paths.append(album)
 
-        if count >= size * size:
+        if count >= size:
             break
 
         count += 1
@@ -87,3 +88,7 @@ color = clr.YELLOW
 # #album_dict = {'big' + str(i[0]): i[1] for i in imgs}
 #
 # #create_maxtrix(4)
+#
+# print(color_count_in_img('AlbumCovers/11.jpg', clr.RED, 'color')) #tricot
+# print(color_count_in_img('AlbumCovers/1862.jpg', clr.RED, 'color')) #sawayama
+# print(color_count_in_img('AlbumCovers/1128.jpg', clr.RED, 'color')) #ocean

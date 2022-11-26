@@ -1,4 +1,6 @@
 import asyncio
+import os
+
 import aiohttp
 from itertools import islice
 from database import read_rows
@@ -58,3 +60,10 @@ def download_album_covers(urls: list, path: str):
 #download_album_covers(read_rows((1, 0, 0, 1, 0, 0)),'AlbumCovers')
 
 print("--- %s seconds ---" % (time.time() - start_time))
+
+
+def cleanup():
+    for f in os.listdir('static/images'):
+        os.remove(os.path.join('static/images',f))
+
+

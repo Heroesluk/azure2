@@ -1,3 +1,6 @@
+import math
+
+
 def check_black_amount(c1):
     # 0-255 - > 0-100
     brightness = c1[2]/2.55
@@ -25,16 +28,28 @@ def check_gray_scale(c1,low,high):
 
 def check_if_close_color(c1, c2):
     hue1, hue2 = c1[0] * 359, c2[0] * 359
+
+    #print(hue2, hue2==359, hue2==359.0)
+
+    saturation = c1[1]*100
+    brightness = c1[2]/2.55
+
     # if abs(hue1-hue2)<50:
     # print(c2,c1,'value', (abs(hue1-hue2)<50),c1[1],(c1[2]/255))
     distance = abs(hue1 - hue2)
-    if distance < 25:
+    #print(distance)
+    if distance < 25 and saturation>5 and brightness>30:
         if distance == 0:
             multiplier = 1
         else:
-            multiplier = 1
+            multiplier = (1/distance)*saturation
 
-        return multiplier * c2[1] * (c2[2] / 255)
+        return multiplier
+
+    elif hue2==0.0 and distance>340 and saturation>5 and brightness>30:
+        distance = 360-distance
+        return (1/distance)*math.sqrt(saturation)
+
 
     return 0
 

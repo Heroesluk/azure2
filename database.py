@@ -33,12 +33,17 @@ def parse_json(path):  # load parse data, before passing it to database
     with open(path, 'r') as file:
         data = json.load(file)
     data_p = []
+    duplicates = set()
+
 
     for i in data:
-        if len(i['image'][0]['#text'])>0:
+        small_img_link = i['image'][0]['#text']
+        if len(small_img_link)>0 and small_img_link not in duplicates:
 
             data_p.append((i['name'], i['artist']['name'],
-                    i['image'][0]['#text'], i['image'][2]['#text'], None))
+                    small_img_link, i['image'][2]['#text'], None))
+
+            duplicates.add(small_img_link)
 
     return data_p
 
@@ -122,9 +127,11 @@ SET seq = 0 where name = 'AlbumList';""")
 
 
 clear_table()
-# create_albums_json('heroesluk',5,'albums1.json')
-insert_data(parse_json('albums.json'))
+# create_albums_json('heroesluk',10,'albums1.json')
 
+
+insert_data(parse_json('albums.json'))
+print(len(read_rows()))
 # [400:420]
 # select_from_id_list(_data)
 
