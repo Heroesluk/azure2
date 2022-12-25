@@ -14,10 +14,14 @@ images = [i for i in os.listdir("static/images")]
 clr = ColorPalette()
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def hello_world():
 
-    print('huj')
+    if request.method == "POST":
+        name = request.form["user_name"]
+        print(name)
+
+
     return render_template("main.html")
 
 
