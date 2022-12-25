@@ -31,7 +31,10 @@ def login():
 
     if request.method == "POST":
         lenght = (request.form["matrix_size"])
-        imgs = return_imgs_with_most_color(int(lenght)*int(lenght), 'AlbumCovers', clr.ORANGE)
+        color_name = request.form["mosaic_color"]
+        color = clr.access_by_name(color_name)
+
+        imgs = return_imgs_with_most_color(int(lenght)*int(lenght), 'AlbumCovers', color)
         imgs = select_from_id_list(imgs)
         download_album_covers(imgs, 'static/images')
 
