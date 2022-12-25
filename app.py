@@ -32,7 +32,10 @@ def login():
     if request.method == "POST":
         lenght = (request.form["matrix_size"])
         color_name = request.form["mosaic_color"]
+        print(color_name,'huj')
+
         color = clr.access_by_name(color_name)
+        print(color,'huj')
 
         imgs = return_imgs_with_most_color(int(lenght)*int(lenght), 'AlbumCovers', color)
         imgs = select_from_id_list(imgs)

@@ -1,6 +1,7 @@
 from typing import Tuple
 
 
+
 class ColorPalette():
     def __init__(self):
         self.RED = (255, 0, 0)
@@ -15,7 +16,10 @@ class ColorPalette():
 
     def access_by_name(self, color: str) -> Tuple[int, int, int]:
         try:
-            return getattr(self, color.lower())
+            return getattr(self, color.upper())
         except AttributeError:
             print('color doesnt exist in the palette, returning white color ')
             return self.WHITE
+
+
+
