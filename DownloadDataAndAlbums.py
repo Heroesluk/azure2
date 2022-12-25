@@ -62,7 +62,7 @@ def download_album_covers(urls: list, path: str):
 print("--- %s seconds ---" % (time.time() - start_time))
 
 
-def cleanup():
+def clear_img_results():
     for f in os.listdir('static/images'):
         os.remove(os.path.join('static/images',f))
 

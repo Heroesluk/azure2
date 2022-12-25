@@ -2,6 +2,9 @@ from PIL import Image, ImageColor, UnidentifiedImageError
 import colorsys
 import os
 from collections import Counter
+
+from typing import Tuple
+
 from CreateMosaicIMG import create_maxtrix
 from ColorAnalysisAlgorithms import check_if_close_color, check_black_amount, check_white_amount, check_gray_scale
 from colors import ColorPalette
@@ -51,11 +54,11 @@ def print_color_analysis(album_color_count):
         print(album, count)
 
 
-def return_imgs_with_most_color(size, path, color):  # size refers to square-mosaic length
-    print('huj')
+def return_imgs_with_most_color(size: int, path: str,
+                                color: Tuple[int, int, int]):  # size refers to square-mosaic length
     albums_color_counter = {}
 
-    # count occurences of color in image
+    # count occurrences of color in image
     for name in os.listdir(path):
         albums_color_counter[name] = color_count_in_img('{}/{}'.format(path, name), color, 'color')
 
