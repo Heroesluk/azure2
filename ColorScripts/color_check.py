@@ -1,15 +1,12 @@
-from PIL import Image, ImageColor, UnidentifiedImageError
+from PIL import Image, UnidentifiedImageError
 import colorsys
 import os
 from collections import Counter
 
 from typing import Tuple
 
-from CreateMosaicIMG import create_maxtrix
-from ColorAnalysisAlgorithms import check_if_close_color, check_black_amount, check_white_amount, check_gray_scale
-from colors import ColorPalette
-from database import select_from_id_list
-from DownloadDataAndAlbums import download_album_covers
+from ColorScripts.ColorAnalysisAlgorithms import check_if_close_color, check_black_amount, check_white_amount
+from ColorScripts.colors import ColorPalette
 
 # hsv H:0-1 S:0-1 V: 0-255
 
@@ -23,6 +20,7 @@ def color_count_in_img(img_full_path, color, type_of_analysis):
     color_conv = colorsys.rgb_to_hsv(color[0], color[1], color[2])
 
     try:
+        print()
         im = Image.open(img_full_path)
         im_hsv = list(colorsys.rgb_to_hsv(i[0], i[1], i[2]) for i in im.getdata())
     except (UnidentifiedImageError, FileNotFoundError, TypeError) as e:

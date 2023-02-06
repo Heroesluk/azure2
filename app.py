@@ -1,9 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for
-import os, sys
-from color_check import return_imgs_with_most_color
+import os
+from ColorScripts.color_check import return_imgs_with_most_color
 from database import select_from_id_list
-from DownloadDataAndAlbums import download_album_covers, clear_img_results
-from colors import ColorPalette
+from DownloadDataAndAlbums import download_album_covers
+from ColorScripts.colors import ColorPalette
 
 app = Flask(__name__)
 
@@ -12,6 +12,11 @@ app.config['UPLOAD_FOLDER'] = IMG_FOLDER
 images = [i for i in os.listdir("static/images")]
 
 clr = ColorPalette()
+
+
+def clear_img_results():
+    for f in os.listdir('static/images'):
+        os.remove(os.path.join('static/images',f))
 
 
 @app.route("/", methods=["GET", "POST"])

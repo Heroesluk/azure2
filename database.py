@@ -131,9 +131,4 @@ clear_table()
 
 
 insert_data(parse_json('albums.json'))
-print(len(read_rows()))
-# [400:420]
-# select_from_id_list(_data)
-
-
-### execute querry function
+print((read_rows((1,1,1,1,1,1))))

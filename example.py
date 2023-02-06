@@ -6,6 +6,9 @@ from dateutil.relativedelta import relativedelta
 from typing import List, Tuple
 from json import dump
 
+
+#i want to display every album per month
+
 class TimeStamp:
     def __init__(self, start: str, end: str):
         self.start = int(start)

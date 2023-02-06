@@ -3,7 +3,6 @@ import os
 
 import aiohttp
 from itertools import islice
-from database import read_rows
 import time
 
 start_time = time.time()
@@ -62,8 +61,5 @@ def download_album_covers(urls: list, path: str):
 print("--- %s seconds ---" % (time.time() - start_time))
 
 
-def clear_img_results():
-    for f in os.listdir('static/images'):
-        os.remove(os.path.join('static/images',f))
 
 
