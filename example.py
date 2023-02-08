@@ -158,11 +158,15 @@ def create_gif():
     for file_name in paths:
         images.append(imageio.imread(file_name))
 
-    imageio.mimsave('movie.gif', images, fps=1)
+    imageio.mimsave('static/movie.gif', images, fps=1)
 
 
-def gif_creator(start_date: datetime, delta: relativedelta, matrix_size: int, end_date: datetime = None):
-    data = get_list_of_fav_artists(start_date, delta, matrix_size)
+deltas = {"week":relativedelta(weeks=+1), "month":relativedelta(months=+1), "3month":relativedelta(months=+3), "year":relativedelta(months=+12)}
+
+def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: datetime = None):
+    time_delta = deltas[delta]
+    data = get_list_of_fav_artists(start_date, time_delta, matrix_size)
+
 
     for date, albums_per_date in data.items():
         albums = data[date]
