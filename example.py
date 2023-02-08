@@ -6,6 +6,15 @@ import os
 import imageio
 from PIL import Image
 
+
+files = []
+count = 0
+
+
+def convert_last_album_cover_link_to_id(link: str):
+
+    return (link.split("/")[-1]).split('.jpg')[0]
+
 class TimeStamp:
     def __init__(self, start: str, end: str):
         self.start = int(start)
@@ -37,6 +46,7 @@ class Album():
         self.play_count = int(data['playcount'])
 
         self.image = None
+        self.image_path = None
         self.tags = []
 
 
@@ -62,6 +72,24 @@ class Album():
                 self.image = data['album']['image'][3]['#text']
             except KeyError:
                 print("Couldn't find image for {} with request".format(self.album_name))
+
+
+        if self.image:
+            self.download_image()
+
+    def download_image(self):
+        global files
+
+        file_name = convert_last_album_cover_link_to_id(self.image)
+
+        if file_name in files:
+            self.image_path = file_name
+        else:
+            with open("GIF/{}.jpg".format(file_name), 'wb') as f:
+                data_img = requests.get(self.image).content
+                f.write(data_img)
+
+            files.append(file_name)
 
 
 
@@ -171,16 +199,16 @@ def create_gif():
 def main():
     start = datetime(2022, 2, 1)
     data = get_list_of_fav_artists(start, relativedelta(months=+1), 16)
-
-    for date, albums_per_date in data.items():
-        print(date)
-
-        albums = data[date]
-        album_img_links = [i.image for i in albums]
-        paths = download_images(album_img_links, date.strftime("%Y-%m"))
-        create_maxtrix(3, 'GIF', date.strftime("%Y-%m"))
-
-    create_gif()
+    #
+    # for date, albums_per_date in data.items():
+    #     print(date)
+    #
+    #     albums = data[date]
+    #     album_img_links = [i.image for i in albums]
+    #     paths = download_images(album_img_links, date.strftime("%Y-%m"))
+    #     create_maxtrix(3, 'GIF', date.strftime("%Y-%m"))
+    #
+    # create_gif()
 
 
 main()
