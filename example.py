@@ -6,10 +6,6 @@ import os
 import imageio
 from PIL import Image
 
-
-
-#i want to display every album per month
-
 class TimeStamp:
     def __init__(self, start: str, end: str):
         self.start = int(start)
@@ -30,7 +26,6 @@ def get_cache_album_data():
 
 
     return  {i['url']:i for i in data['topalbums']['album']}
-
 
 class Album():
     def __init__(self, data, rank_context=None):
@@ -63,16 +58,10 @@ class Album():
             #
             # for tag in data['album']['tags']['tag']:
             #     self.tags.append(tag['name'])
-
-            self.image = data['album']['image'][3]['#text']
-
-        if len(self.image)==0:
-            print("Couldnt find image for {}".format(self.album_name))
-
-
-
-
-
+            try:
+                self.image = data['album']['image'][3]['#text']
+            except KeyError:
+                print("Couldn't find image for {} with request".format(self.album_name))
 
 
 
@@ -124,7 +113,9 @@ def get_list_of_fav_artists(start_date: datetime, time_delta: relativedelta, alb
 
             album.load_more_metadata(cache)
             album.print_out()
-            album_tops[start_date].append(album)
+            #append only if image exists
+            if album.image:
+                album_tops[start_date].append(album)
 
         start_date+=time_delta
         print("\n"*3)
@@ -133,11 +124,6 @@ def get_list_of_fav_artists(start_date: datetime, time_delta: relativedelta, alb
 
     return album_tops
 
-
-
-
-# for k,v in data.items():
-#     print(k, [i.image for i in v ])
 
 #will save images as i.e 10_2022_INDEX where index is incrementing
 def download_images(image_links, key_name) -> list:
@@ -150,14 +136,6 @@ def download_images(image_links, key_name) -> list:
             name+=1
 
     return ["GIF/{}".format(i) for i in os.listdir("GIF")]
-
-
-# # albums1 = data[datetime(2022,11,1)]
-# links = [i.image for i in albums1]
-#
-# paths = download_images(links, datetime(2022,11,1).strftime("%m-%Y"))
-
-
 
 
 def create_maxtrix(matrix_size, path, date_key=None):
@@ -178,21 +156,6 @@ def create_maxtrix(matrix_size, path, date_key=None):
     new_image.save("{}/mosaic_{}.jpg".format(path,date_key), "JPEG")
 
 
-
-start = datetime(2022,11,1)
-data = get_list_of_fav_artists(start,relativedelta(months=+1),9)
-
-for date, albums_per_date in data.items():
-    print(date)
-
-    albums = data[date]
-    album_img_links = [i.image for i in albums]
-    paths = download_images(album_img_links, date.strftime("%m-%Y"))
-    create_maxtrix(3, 'GIF', date.strftime("%m-%Y"))
-
-
-
-
 def create_gif():
     paths = list(sorted(["GIF/{}".format(i) for i in os.listdir("GIF") if "mosaic" in i]))
     print(paths)
@@ -204,10 +167,30 @@ def create_gif():
     imageio.mimsave('movie.gif', images, fps=1)
 
 
-create_gif()
+
+def main():
+    start = datetime(2022, 2, 1)
+    data = get_list_of_fav_artists(start, relativedelta(months=+1), 16)
+
+    for date, albums_per_date in data.items():
+        print(date)
+
+        albums = data[date]
+        album_img_links = [i.image for i in albums]
+        paths = download_images(album_img_links, date.strftime("%Y-%m"))
+        create_maxtrix(3, 'GIF', date.strftime("%Y-%m"))
+
+    create_gif()
+
+
+main()
+#todo: stop program from downloading same images
 
 
 
+
+
+#233 files before
 
 
 
