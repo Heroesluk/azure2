@@ -15,6 +15,14 @@ def convert_last_album_cover_link_to_id(link: str):
 
     return (link.split("/")[-1]).split('.jpg')[0]
 
+def get_cache_album_data():
+    data = requests.get(
+        "http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&use"
+        "r=Heroesluk&limit=500&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json").json()
+
+
+    return  {i['url']:i for i in data['topalbums']['album']}
+
 class TimeStamp:
     def __init__(self, start: str, end: str):
         self.start = int(start)
@@ -28,13 +36,6 @@ class TimeStamp:
     def time_stamp(self):
         return str(self.start), str(self.end)
 
-def get_cache_album_data():
-    data = requests.get(
-        "http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&use"
-        "r=Heroesluk&limit=500&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json").json()
-
-
-    return  {i['url']:i for i in data['topalbums']['album']}
 
 class Album():
     def __init__(self, data, rank_context=None):
@@ -48,8 +49,6 @@ class Album():
         self.image = None
         self.image_path = None
         self.tags = []
-
-
 
     def print_out(self):
         print("{}. {} by {} played {} times".format(self.rank, self.album_name, self.artist, self.play_count))
@@ -135,47 +134,28 @@ def get_list_of_fav_artists(start_date: datetime, time_delta: relativedelta, alb
 
     while start_date<datetime.now():
         albums = get_top_albums(int(start_date.timestamp()),int((start_date+time_delta).timestamp()),albums_per_delta)
-        print("Top for: {}".format(start_date))
+        # print("Top for: {}".format(start_date))
 
         album_tops[start_date] = []
         for album in albums:
-
-
             album.load_more_metadata(cache)
-            album.print_out()
+            # album.print_out()
             #append only if image exists
             if album.image:
                 album_tops[start_date].append(album)
 
         start_date+=time_delta
-        print("\n"*3)
+        # print("\n"*3)
 
 
 
     return album_tops
 
 
-#will save images as i.e 10_2022_INDEX where index is incrementing
-def download_images(image_links, key_name) -> list:
-    data = []
-    name = 1
-    for link in image_links:
-        with open("GIF/{}_{}.jpg".format(key_name,name), 'wb') as f:
-            data_img = requests.get(link).content
-            f.write(data_img)
-            name+=1
-
-    return ["GIF/{}".format(i) for i in os.listdir("GIF")]
-
-
 def create_maxtrix(matrix_size, path, album_file_names, date_key=None):
-    #for now assume all images are same size
-    #assuming album is Z times Z size
+    #assume all images are same size
     albums = [Image.open('{}/{}.jpg'.format(path, i)) for i in album_file_names]
-
-
     album_size =  albums[0].size[0]
-
     new_image = Image.new('RGB', (matrix_size *album_size, matrix_size * album_size), (250, 250, 250))
 
     index = 0
@@ -189,8 +169,10 @@ def create_maxtrix(matrix_size, path, album_file_names, date_key=None):
 
 def create_gif():
     paths = list(sorted(["GIF/{}".format(i) for i in os.listdir("GIF") if "mosaic" in i]))
-    print(paths)
     fp_out = "image.gif"
+    if fp_out in os.listdir:
+        os.remove(fp_out)
+
     images = []
     for file_name in paths:
         images.append(imageio.imread(file_name))
@@ -200,15 +182,17 @@ def create_gif():
 
 
 def main():
-    start = datetime(2022, 9, 1)
-    data = get_list_of_fav_artists(start, relativedelta(months=+1), 16)
+    start = datetime(2019, 1, 1)
+    data = get_list_of_fav_artists(start, relativedelta(months=+12), 25)
+    print(data)
+
 
     for date, albums_per_date in data.items():
         albums = data[date]
         album_file_names = [i.image_path for i in albums]
-        create_maxtrix(3, 'GIF',album_file_names, date.strftime("%Y-%m") )
-    #
-    # create_gif()
+        create_maxtrix(4, 'GIF',album_file_names, date.strftime("%Y-%m") )
+
+    create_gif()
 
 
 main()
