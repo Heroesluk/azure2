@@ -6,35 +6,19 @@ import os
 import imageio
 from PIL import Image
 
-
 files = []
-count = 0
 
 
 def convert_last_album_cover_link_to_id(link: str):
-
     return (link.split("/")[-1]).split('.jpg')[0]
+
 
 def get_cache_album_data():
     data = requests.get(
         "http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&use"
         "r=Heroesluk&limit=500&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json").json()
 
-
-    return  {i['url']:i for i in data['topalbums']['album']}
-
-class TimeStamp:
-    def __init__(self, start: str, end: str):
-        self.start = int(start)
-        self.end = int(end)
-
-        self.start_date = datetime.fromtimestamp(self.start)
-        self.month = self.start_date.month
-        self.year = self.start_date.year
-
-
-    def time_stamp(self):
-        return str(self.start), str(self.end)
+    return {i['url']: i for i in data['topalbums']['album']}
 
 
 class Album():
@@ -72,7 +56,6 @@ class Album():
             except KeyError:
                 print("Couldn't find image for {} with request".format(self.album_name))
 
-
         if self.image:
             self.download_image()
 
@@ -90,8 +73,6 @@ class Album():
 
             files.append(file_name)
             self.image_path = file_name
-
-
 
 
 # in a format of {
@@ -118,59 +99,59 @@ def get_top_albums(start_date: int, end_date: int, top: int = 1000) -> List[Albu
     for i in (data["weeklyalbumchart"]["album"]):
         albums.append(Album(i))
 
-        if len(albums)>top:
+        if len(albums) > top:
             return albums
-
 
     return albums
 
 
 # gets dict of favorite albums per specified time period
 # i.e {month1:[Album1, Album2], month2:[Album4, Album1]} etc
-def get_list_of_fav_artists(start_date: datetime, time_delta: relativedelta, albums_per_delta: int):
-
+def get_list_of_fav_artists(start_date: datetime, time_delta: relativedelta, matrix_size: int):
     album_tops = {}
     cache = get_cache_album_data()
 
-    while start_date<datetime.now():
-        albums = get_top_albums(int(start_date.timestamp()),int((start_date+time_delta).timestamp()),albums_per_delta)
-        # print("Top for: {}".format(start_date))
+    while start_date < datetime.now():
+        albums = get_top_albums(int(start_date.timestamp()), int((start_date + time_delta).timestamp()),
+                                matrix_size * matrix_size)
+        print("Top for: {}".format(start_date))
 
         album_tops[start_date] = []
         for album in albums:
             album.load_more_metadata(cache)
-            # album.print_out()
-            #append only if image exists
+            album.print_out()
+            # append only if image exists
             if album.image:
                 album_tops[start_date].append(album)
 
-        start_date+=time_delta
-        # print("\n"*3)
-
-
+        start_date += time_delta
+        print("\n" * 3)
 
     return album_tops
 
 
 def create_maxtrix(matrix_size, path, album_file_names, date_key=None):
-    #assume all images are same size
+    # assume all images are same size
     albums = [Image.open('{}/{}.jpg'.format(path, i)) for i in album_file_names]
-    album_size =  albums[0].size[0]
-    new_image = Image.new('RGB', (matrix_size *album_size, matrix_size * album_size), (250, 250, 250))
+    album_size = albums[0].size[0]
+    new_image = Image.new('RGB', (matrix_size * album_size, matrix_size * album_size), (250, 250, 250))
 
     index = 0
     for x in range(matrix_size):
         for y in range(matrix_size):
-            new_image.paste(albums[index], (album_size*x, album_size*y))
-            index+=1
+            try:
+                new_image.paste(albums[index], (album_size * x, album_size * y))
+                index += 1
+            except IndexError:
+                pass
 
-    new_image.save("{}/mosaic_{}.jpg".format(path,date_key), "JPEG")
+    new_image.save("{}/mosaic_{}.jpg".format(path, date_key), "JPEG")
 
 
 def create_gif():
     paths = list(sorted(["GIF/{}".format(i) for i in os.listdir("GIF") if "mosaic" in i]))
     fp_out = "image.gif"
-    if fp_out in os.listdir:
+    if fp_out in os.listdir():
         os.remove(fp_out)
 
     images = []
@@ -180,29 +161,20 @@ def create_gif():
     imageio.mimsave('movie.gif', images, fps=1)
 
 
-
-def main():
-    start = datetime(2019, 1, 1)
-    data = get_list_of_fav_artists(start, relativedelta(months=+12), 25)
-    print(data)
-
+def gif_creator(start_date: datetime, delta: relativedelta, matrix_size: int, end_date: datetime = None):
+    data = get_list_of_fav_artists(start_date, delta, matrix_size)
 
     for date, albums_per_date in data.items():
         albums = data[date]
         album_file_names = [i.image_path for i in albums]
-        create_maxtrix(4, 'GIF',album_file_names, date.strftime("%Y-%m") )
+        create_maxtrix(matrix_size, 'GIF', album_file_names, date.strftime("%Y-%m"))
 
     create_gif()
 
 
-main()
-#todo: stop program from downloading same images
+#gif_creator(datetime(2020, 1, 1), relativedelta(months=+3), 3)
 
-
-
-
-
-#233 files before
-
-
-
+# try to further optimize it
+# add date banner
+# flask app instead of script
+# deploy as docker image on heroku
