@@ -90,6 +90,8 @@ class Album():
                 f.write(data_img)
 
             files.append(file_name)
+            self.image_path = file_name
+
 
 
 
@@ -166,10 +168,11 @@ def download_images(image_links, key_name) -> list:
     return ["GIF/{}".format(i) for i in os.listdir("GIF")]
 
 
-def create_maxtrix(matrix_size, path, date_key=None):
+def create_maxtrix(matrix_size, path, album_file_names, date_key=None):
     #for now assume all images are same size
     #assuming album is Z times Z size
-    albums = [Image.open('{}/{}'.format(path, i)) for i in os.listdir(path) if date_key in i]
+    albums = [Image.open('{}/{}.jpg'.format(path, i)) for i in album_file_names]
+
 
     album_size =  albums[0].size[0]
 
@@ -197,16 +200,13 @@ def create_gif():
 
 
 def main():
-    start = datetime(2022, 2, 1)
+    start = datetime(2022, 9, 1)
     data = get_list_of_fav_artists(start, relativedelta(months=+1), 16)
-    #
-    # for date, albums_per_date in data.items():
-    #     print(date)
-    #
-    #     albums = data[date]
-    #     album_img_links = [i.image for i in albums]
-    #     paths = download_images(album_img_links, date.strftime("%Y-%m"))
-    #     create_maxtrix(3, 'GIF', date.strftime("%Y-%m"))
+
+    for date, albums_per_date in data.items():
+        albums = data[date]
+        album_file_names = [i.image_path for i in albums]
+        create_maxtrix(3, 'GIF',album_file_names, date.strftime("%Y-%m") )
     #
     # create_gif()
 
