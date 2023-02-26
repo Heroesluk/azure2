@@ -1,3 +1,6 @@
+import os
+
+import PIL
 import circlify
 import requests
 import matplotlib
@@ -29,12 +32,6 @@ for i in data['topartists']['artist']:
 
 
 
-for k,v in artists_data.items():
-    print(k,v)
-
-
-
-
 def download_image(_data):
     for k,v in _data.items():
 
@@ -51,10 +48,9 @@ def download_image(_data):
                 print("No image for: {}".format(k))
 
 
-download_image(artists_data)
+#download_image(artists_data)
 
 
-exit()
 
 
 class CircleToDraw():
@@ -63,18 +59,29 @@ class CircleToDraw():
         self.y = (1 - circle.y) / 2
         self.name = circle.ex['id']
         self.listens = circle.ex['datum']
-        self.r = circle.r / 2
+        self.r = circle.r
         self.path = None
 
         self.top_x = self.x - self.r
         self.top_y = self.y - self.r
 
-    def screen_coordinates(self, size):
-        return {'x': self.top_x * size, 'y': self.top_y * size, 'r': self.r * size}
+        self.image = None
 
+
+    def screen_coordinates(self, size):
+        return {'x': (self.top_x * size), 'y': (self.top_y * size), 'r': (self.r * size)}
+
+    def get_image(self, path):
+        im = Image.open(path)
+        im = im.resize((int(self.screen_coordinates(800)['r']),int(self.screen_coordinates(800)['r'])))
+
+        return im
 
 data = [{'id': k, 'datum': float(v[0])} for k, v in artists_data.items()]
 circles = circ.circlify(data, show_enclosure=False)
+
+
+
 
 
 artists_circles = []
@@ -88,9 +95,18 @@ from PIL import Image, ImageDraw
 im = Image.new('RGB', (800, 800), (128, 128, 128))
 draw = ImageDraw.Draw(im)
 
+import  random
 for artists in artists_circles:
+
     cords = artists.screen_coordinates(800)
-    draw.ellipse((cords['x'], cords['y'], cords['x'] + (2 * cords['r'])
-                  , cords['y'] + (2 * cords['r'])), fill=(255, 0, 0))
+    # try:
+    #     temp = artists.get_image("Bubbles/" + artists.name + '.png')
+    #     im.paste(temp, (cords['x'], cords['y']))
+    # except PIL.UnidentifiedImageError:
+    #     print(artists.name)
+
+
+    draw.ellipse((cords['x'], cords['y'], cords['x'] + (cords['r'])
+                  , cords['y'] + ( cords['r'])), fill=(random.randrange(1,255), random.randrange(1,255), random.randrange(1,255)))
 
 im.show()
