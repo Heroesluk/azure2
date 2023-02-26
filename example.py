@@ -96,11 +96,15 @@ def get_top_albums(start_date: int, end_date: int, top: int = 1000) -> List[Albu
 
     data = data.json()
     albums = []
-    for i in (data["weeklyalbumchart"]["album"]):
-        albums.append(Album(i))
+    try:
+        for i in (data["weeklyalbumchart"]["album"]):
+            albums.append(Album(i))
 
-        if len(albums) > top:
-            return albums
+            if len(albums) > top:
+                return albums
+    except KeyError:
+        print("Couldn't get link for {}".format(start_date))
+
 
     return albums
 
@@ -161,7 +165,7 @@ def create_gif():
     imageio.mimsave('static/movie.gif', images, fps=1)
 
 
-deltas = {"week":relativedelta(weeks=+1), "month":relativedelta(months=+1), "3month":relativedelta(months=+3), "year":relativedelta(months=+12)}
+deltas = {"week":relativedelta(weeks=+1), "month":relativedelta(months=+1), "3month":relativedelta(months=+3),"6month":relativedelta(months=+6), "year":relativedelta(months=+12)}
 
 def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: datetime = None):
     time_delta = deltas[delta]
@@ -176,7 +180,7 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: da
     create_gif()
 
 
-#gif_creator(datetime(2020, 1, 1), relativedelta(months=+3), 3)
+#gif_creator(datetime(2020, 1, 1), '3month', 3)
 
 # try to further optimize it
 # add date banner

@@ -46,8 +46,6 @@ def mosaic():
         matrix_size = request.form["matrix_size"]
         time_delta = request.form["time_delta"]
 
-
-
         start_date = datetime.strptime(date_str,"%Y-%m-%d")
         gif_creator(start_date, time_delta, int(matrix_size))
 

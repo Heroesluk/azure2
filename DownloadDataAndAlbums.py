@@ -58,7 +58,7 @@ def download_album_covers(urls: list, path: str):
 
 #download_album_covers(read_rows((1, 0, 0, 1, 0, 0)),'AlbumCovers')
 
-print("--- %s seconds ---" % (time.time() - start_time))
+#print("--- %s seconds ---" % (time.time() - start_time))
 
 
 
