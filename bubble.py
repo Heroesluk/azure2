@@ -5,7 +5,7 @@ import circlify
 import requests
 import matplotlib
 import circlify as circ
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageChops, ImageOps
 import  random
 
 
@@ -84,86 +84,34 @@ class CircleToDraw():
 
         return im
 
-data = [{'id': k, 'datum': float(v[0])} for k, v in artists_data.items()]
-circles = circ.circlify(data, show_enclosure=False)
 
 
-import circlify
-import matplotlib.pyplot as plt
+def main():
+    data = [{'id': k, 'datum': float(v[0])} for k, v in artists_data.items()]
+    circles = circ.circlify(data, show_enclosure=False)
 
-# Create just a figure and only one subplot
-fig, ax = plt.subplots(figsize=(10,10))
+    im = Image.new('RGB', (1000, 1000), (128, 128, 128))
+    draw = ImageDraw.Draw(im)
 
-# Remove axes
-ax.axis('off')
+    artists_circles = []
 
-# Find axis boundaries
-lim = max(
-    max(
-        abs(circle.x) + circle.r,
-        abs(circle.y) + circle.r,
-    )
-    for circle in circles
-)
+    cn: Canvas = Canvas(size=(800, 800))
 
+    for circle in circles:
+        x, y, r = circle.x, circle.y, circle.r
+        l, r, u, low = cn.give_circle_coords((x, y), r * 400, (
+        random.randrange(1, 255), random.randrange(1, 255), random.randrange(1, 255)))
+        draw.ellipse((l, r, u, low), fill=(123, 0, 0), outline=None)
 
-plt.xlim(-lim, lim)
-plt.ylim(-lim, lim)
+        name = circle.ex['id']
+        try:
+            img = Image.open("Bubbles/" + name + ".png")
+            img = img.resize((int(u - l), int(low - r)))
+            im.paste(img, (int(l), int(r)))
+        except (FileNotFoundError, PIL.UnidentifiedImageError):
+            print(name)
 
-
-
-
-
-im = Image.new('RGB', (1000, 1000), (128, 128, 128))
-draw = ImageDraw.Draw(im)
-
-for circle in circles:
-    x, y, r = circle
-    print(circle)
-    ax.add_patch(plt.Circle((x, y), r, alpha=0.2, linewidth=2, fill=False))
-#
-#     draw.ellipse(((1+x)/2,(1+y)/2, ((1+x)/2)+r,((1+y)/2)+r),
-#                  fill=(random.randrange(1, 255), random.randrange(1, 255), random.randrange(1, 255)))
-
-# plt.show()
-
-
-
-artists_circles = []
-# for circle in circles:
-#     temp = CircleToDraw(circle)
-#     artists_circles.append(temp)
-# for artists in artists_circles:
-#
-#     cords = artists.screen_coordinates(800)
-#     # try:
-#     #     temp = artists.get_image("Bubbles/" + artists.name + '.png')
-#     #     im.paste(temp, (cords['x'], cords['y']))
-#     # except PIL.UnidentifiedImageError:
-#     #     print(artists.name)
-#
-#
-#     draw.ellipse((cords['x'], cords['y'], cords['x'] + (cords['r'])
-#                   , cords['y'] + (cords['r'])), fill=(random.randrange(1,255), random.randrange(1,255), random.randrange(1,255)))
-#
-# im.show()
-
-
-cn: Canvas = Canvas(size=(800,800))
-
-for circle in circles:
-    x,y,r = circle.x, circle.y, circle.r
-    l,r,u,low = cn.give_circle_coords((x,y),r*400,(random.randrange(1,255), random.randrange(1,255), random.randrange(1,255)))
-    draw.ellipse((l, r, u, low), fill=(123,0,0), outline=None)
-
-    name = circle.ex['id']
-    try:
-        img = Image.open("Bubbles/" + name + ".png")
-        img = img.resize((int(u-l),int(low-r)))
-        im.paste(img, (int(l),int(r)))
-    except (FileNotFoundError, PIL.UnidentifiedImageError):
-        print(name)
-
+    im.show()
 
     # artists_circles.append(CircleToDraw(circle, l,r,u,low))
     # cn.draw_circle((x,y),r*400,(random.randrange(1,255), random.randrange(1,255), random.randrange(1,255)))
@@ -182,7 +130,18 @@ for circle in circles:
     # draw.ellipse((cords['x'], cords['y'], cords['x'] + (cords['r'])
     #               , cords['y'] + (cords['r'])), fill=(random.randrange(1,255), random.randrange(1,255), random.randrange(1,255)))
 
-im.show()
 
 
-# cn.img.show()
+def image_to_circle(img: Image):
+    mask = Image.open('mask.png').convert('L')
+
+    output = ImageOps.fit(img, mask.size, centering=(0.5, 0.5))
+    output.putalpha(mask)
+
+    return output
+
+im = Image.open("Bubbles/DAOKO.png")
+
+im_c = image_to_circle(im)
+
+im_c.show()
