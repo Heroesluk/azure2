@@ -8,6 +8,8 @@ import circlify as circ
 from PIL import Image, ImageDraw, ImageChops, ImageOps
 import  random
 
+from pathvalidate import ValidationError, validate_filename, sanitize_filename
+
 
 
 from stolen import *
@@ -16,46 +18,49 @@ from stolen import *
 """Since lastfm refuse to give image links for gettopartists
 it has to be done manually by fetching albums, and then match album covers with corresponding artists
 since the whole purpose of this script it to display most listened artists,
- we can assume that artist from top50 will have at least 1 album within top500 albums"""
-def get_top_listened_artists_with_img_links(user: str):
+ we can assume that artist from top50 will have at least 1 album within top500 albums
+ 
+ 
+ Returns dict in format of {artist_name: (play_counts, img_link)}
+ """
+def get_top_listened_artists_with_img_links(user: str, limit: int):
     data = requests.get(
         "http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json".format(user))
-    data = data.json()
+    top_artists = data.json()['topartists']
 
-    images_data = requests.get(
-        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit=500'.format(user)).json()
+    top_albums = requests.get(
+        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit={}'.format(user,limit)).json()['topalbums']
 
     artists_data = {}
-    keyz = {}
+    keys = {}
 
-    for i in images_data['topalbums']['album']:
-        if i['artist']['name'] not in keyz.keys():
-            keyz[i['artist']['name']] = i['image'][2]['#text']
+    for i in top_albums['album']:
+        if i['artist']['name'] not in keys.keys():
+            # {artist_name:image_link} where 2 corresponds to size of image
+            keys[i['artist']['name']] = i['image'][2]['#text']
 
-    for i in data['topartists']['artist']:
+    for i in top_artists['artist']:
         try:
-            artists_data[i['name']] = (i['playcount'], keyz[i['name']])
+            artists_data[sanitize_filename(i['name'])] = (float(i['playcount']), keys[i['name']])
         except KeyError:
             print("No image for {}".format(i['name']))
 
-
     return artists_data
 
 
-def get_top_listened_albums_with_img_links(user: str):
 
+def get_top_listened_albums_with_img_links(user: str, limit:int):
+    print('http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit={}'.format(user,limit))
     images_data = requests.get(
-        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit=500'.format(user)).json()
+        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit={}'.format(user,limit)).json()
 
     artists_data = {}
     keyz = {}
 
-    print(images_data)
-    exit()
 
     for i in images_data['topalbums']['album']:
         if i['artist']['name'] not in keyz.keys():
-            keyz[i['artist']['name']] = i['image'][2]['#text']
+            artists_data[sanitize_filename(i['name'])] = (i['playcount'],i['image'][2]['#text'])
 
 
 
@@ -64,25 +69,29 @@ def get_top_listened_albums_with_img_links(user: str):
 
 
 
-artist_data = get_top_listened_artists_with_img_links("IDieScreaming")
+
 
 
 
 def download_image(_data):
-    for k, v in _data.items():
+    saved = [i for i in os.listdir('Bubbles')]
 
-        if len(v[1]) > 0:
-            try:
-                img = requests.get(v[1]).content
+    for artist_name, (play_count, link) in _data.items():
+        if len(link) > 0:
+            if artist_name not in saved:
+                try:
+                    img = requests.get(link).content
 
-                with open('Bubbles/{}.png'.format(k), 'wb') as f:
-                    f.write(img)
+                    with open('Bubbles/{}.png'.format(artist_name), 'wb') as f:
+                        f.write(img)
 
-            except KeyError:
-                print("No image for: {}".format(k))
+                except KeyError:
+                    print("No image for: {}".format(artist_name))
 
 
-# download_image(artist_data)
+artist_data = get_top_listened_albums_with_img_links("IDieScreaming",30)
+
+download_image(artist_data)
 
 
 
