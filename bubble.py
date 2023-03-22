@@ -85,6 +85,20 @@ class CircleToDraw():
         return im
 
 
+def image_to_circle(img: Image):
+    ##TODO: maybe some optimalization? need to test if predefined
+    ##mask size wont break anything
+    bigsize = (img.size[0] * 3, img.size[1] * 3)
+    mask = Image.new('L', bigsize, 0)
+    draw = ImageDraw.Draw(mask)
+    draw.ellipse((0, 0) + bigsize, fill=255)
+    mask = mask.resize(img.size, Image.ANTIALIAS)
+    img.putalpha(mask)
+
+
+
+    return img
+
 
 def main():
     data = [{'id': k, 'datum': float(v[0])} for k, v in artists_data.items()]
@@ -101,13 +115,16 @@ def main():
         x, y, r = circle.x, circle.y, circle.r
         l, r, u, low = cn.give_circle_coords((x, y), r * 400, (
         random.randrange(1, 255), random.randrange(1, 255), random.randrange(1, 255)))
-        draw.ellipse((l, r, u, low), fill=(123, 0, 0), outline=None)
+        # draw.ellipse((l, r, u, low), fill=(123, 0, 0), outline=None)
 
         name = circle.ex['id']
         try:
             img = Image.open("Bubbles/" + name + ".png")
+
+            img = image_to_circle(img)
             img = img.resize((int(u - l), int(low - r)))
-            im.paste(img, (int(l), int(r)))
+
+            im.paste(img, (int(l), int(r)),img)
         except (FileNotFoundError, PIL.UnidentifiedImageError):
             print(name)
 
@@ -132,16 +149,4 @@ def main():
 
 
 
-def image_to_circle(img: Image):
-    mask = Image.open('mask.png').convert('L')
-
-    output = ImageOps.fit(img, mask.size, centering=(0.5, 0.5))
-    output.putalpha(mask)
-
-    return output
-
-im = Image.open("Bubbles/DAOKO.png")
-
-im_c = image_to_circle(im)
-
-im_c.show()
+main()
