@@ -11,6 +11,7 @@ from pathvalidate import sanitize_filename
 
 from stolen import *
 
+import cProfile
 
 """Since lastfm refuse to give image links for gettopartists
 it has to be done manually by fetching albums, and then match album covers with corresponding artists
@@ -30,7 +31,7 @@ def get_top_listened_artists_with_img_links(user: str, limit: int):
 
     artists_data = {}
     keys = {}
-
+    ##TODO: change image size depending on the size
     for i in top_albums['album']:
         if i['artist']['name'] not in keys.keys():
             # {artist_name:image_link} where 2 corresponds to size of image
@@ -87,11 +88,7 @@ def async_down(_data):
 
 
 
-artist_data = get_top_listened_artists_with_img_links("heroesluk",100)
 
-# download_image(artist_data)
-
-async_down(artist_data)
 
 
 
@@ -137,7 +134,16 @@ def main():
         except (FileNotFoundError, PIL.UnidentifiedImageError, ValueError):
             print(name)
 
+
     im.show()
 
 
-main()
+
+
+##size 100 is most optimal upper limit, after it circlify slows downs significantly
+artist_data = get_top_listened_albums_with_img_links("heroesluk",100)
+
+
+async_down(artist_data)
+
+cProfile.run('main()')
