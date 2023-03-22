@@ -5,6 +5,12 @@ import circlify
 import requests
 import matplotlib
 import circlify as circ
+from PIL import Image, ImageDraw
+import  random
+
+
+from stolen import *
+
 
 data = requests.get(
     "http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=heroesluk&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json")
@@ -55,8 +61,8 @@ def download_image(_data):
 
 class CircleToDraw():
     def __init__(self, circle: circlify.Circle):
-        self.x = 1 - (1 - circle.x) / 2
-        self.y = (1 - circle.y) / 2
+        self.x = (1 + circle.x) / 2
+        self.y = (1 + circle.y) / 2
         self.name = circle.ex['id']
         self.listens = circle.ex['datum']
         self.r = circle.r
@@ -81,32 +87,72 @@ data = [{'id': k, 'datum': float(v[0])} for k, v in artists_data.items()]
 circles = circ.circlify(data, show_enclosure=False)
 
 
+import circlify
+import matplotlib.pyplot as plt
+
+# Create just a figure and only one subplot
+fig, ax = plt.subplots(figsize=(10,10))
+
+# Remove axes
+ax.axis('off')
+
+# Find axis boundaries
+lim = max(
+    max(
+        abs(circle.x) + circle.r,
+        abs(circle.y) + circle.r,
+    )
+    for circle in circles
+)
+
+
+plt.xlim(-lim, lim)
+plt.ylim(-lim, lim)
 
 
 
-artists_circles = []
-for circle in circles:
-    temp = CircleToDraw(circle)
 
-    artists_circles.append(temp)
 
-from PIL import Image, ImageDraw
-
-im = Image.new('RGB', (800, 800), (128, 128, 128))
+im = Image.new('RGB', (1000, 1000), (128, 128, 128))
 draw = ImageDraw.Draw(im)
 
-import  random
-for artists in artists_circles:
+for circle in circles:
+    x, y, r = circle
+    print(circle)
+    ax.add_patch(plt.Circle((x, y), r, alpha=0.2, linewidth=2, fill=False))
+#
+#     draw.ellipse(((1+x)/2,(1+y)/2, ((1+x)/2)+r,((1+y)/2)+r),
+#                  fill=(random.randrange(1, 255), random.randrange(1, 255), random.randrange(1, 255)))
 
-    cords = artists.screen_coordinates(800)
-    # try:
-    #     temp = artists.get_image("Bubbles/" + artists.name + '.png')
-    #     im.paste(temp, (cords['x'], cords['y']))
-    # except PIL.UnidentifiedImageError:
-    #     print(artists.name)
+# plt.show()
 
 
-    draw.ellipse((cords['x'], cords['y'], cords['x'] + (cords['r'])
-                  , cords['y'] + ( cords['r'])), fill=(random.randrange(1,255), random.randrange(1,255), random.randrange(1,255)))
 
-im.show()
+# artists_circles = []
+# for circle in circles:
+#     temp = CircleToDraw(circle)
+#     artists_circles.append(temp)
+# for artists in artists_circles:
+#
+#     cords = artists.screen_coordinates(800)
+#     # try:
+#     #     temp = artists.get_image("Bubbles/" + artists.name + '.png')
+#     #     im.paste(temp, (cords['x'], cords['y']))
+#     # except PIL.UnidentifiedImageError:
+#     #     print(artists.name)
+#
+#
+#     draw.ellipse((cords['x'], cords['y'], cords['x'] + (cords['r'])
+#                   , cords['y'] + (cords['r'])), fill=(random.randrange(1,255), random.randrange(1,255), random.randrange(1,255)))
+#
+# im.show()
+
+
+cn: Canvas = Canvas(size=(800,800))
+
+for circle in circles:
+    x,y,r = circle.x, circle.y, circle.r
+    cn.draw_circle((x,y),r*400,(random.randrange(1,255), random.randrange(1,255), random.randrange(1,255)))
+
+
+cn.img.show()
