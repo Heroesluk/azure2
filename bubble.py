@@ -9,80 +9,83 @@ from PIL import Image, ImageDraw, ImageChops, ImageOps
 import  random
 
 
+
 from stolen import *
 
 
-data = requests.get(
-    "http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=heroesluk&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json")
-data = data.json()
+"""Since lastfm refuse to give image links for gettopartists
+it has to be done manually by fetching albums, and then match album covers with corresponding artists
+since the whole purpose of this script it to display most listened artists,
+ we can assume that artist from top50 will have at least 1 album within top500 albums"""
+def get_top_listened_artists_with_img_links(user: str):
+    data = requests.get(
+        "http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json".format(user))
+    data = data.json()
 
-images_data = requests.get('http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=heroesluk&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit=500').json()
+    images_data = requests.get(
+        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit=500'.format(user)).json()
+
+    artists_data = {}
+    keyz = {}
+
+    for i in images_data['topalbums']['album']:
+        if i['artist']['name'] not in keyz.keys():
+            keyz[i['artist']['name']] = i['image'][2]['#text']
+
+    for i in data['topartists']['artist']:
+        try:
+            artists_data[i['name']] = (i['playcount'], keyz[i['name']])
+        except KeyError:
+            print("No image for {}".format(i['name']))
+
+
+    return artists_data
+
+
+def get_top_listened_albums_with_img_links(user: str):
+
+    images_data = requests.get(
+        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit=500'.format(user)).json()
+
+    artists_data = {}
+    keyz = {}
+
+    print(images_data)
+    exit()
+
+    for i in images_data['topalbums']['album']:
+        if i['artist']['name'] not in keyz.keys():
+            keyz[i['artist']['name']] = i['image'][2]['#text']
 
 
 
-artists_data = {}
-keyz = {}
 
-for i in images_data['topalbums']['album']:
-    if i['artist']['name'] not in keyz.keys():
-        keyz[i['artist']['name']] =  i['image'][2]['#text']
+    return artists_data
 
 
 
-print(data)
-for i in data['topartists']['artist']:
-    try:
-        artists_data[i['name']] = (i['playcount'], keyz[i['name']])
-    except KeyError:
-        print("No image for {}".format(i['name']))
+artist_data = get_top_listened_artists_with_img_links("IDieScreaming")
 
 
 
 def download_image(_data):
-    for k,v in _data.items():
+    for k, v in _data.items():
 
-        if len(v[1])>0:
+        if len(v[1]) > 0:
             try:
                 img = requests.get(v[1]).content
 
-                with open('Bubble'
-                          ''
-                          's/{}.png'.format(k), 'wb') as f:
+                with open('Bubbles/{}.png'.format(k), 'wb') as f:
                     f.write(img)
 
             except KeyError:
                 print("No image for: {}".format(k))
 
 
-#download_image(artists_data)
+# download_image(artist_data)
 
 
 
-
-class CircleToDraw():
-    def __init__(self, circle: circlify.Circle,left,upper,right,lower):
-        self.left = left
-        self.right = right
-        self.upper = upper
-        self.lower = lower
-        self.name = circle.ex['id']
-        self.listens = circle.ex['datum']
-        self.r = circle.r
-        self.path = None
-
-
-
-        self.image = None
-
-
-    def screen_coordinates(self, size):
-        return {'x': (self.top_x * size), 'y': (self.top_y * size), 'r': (self.r * size)}
-
-    def get_image(self, path):
-        im = Image.open(path)
-        im = im.resize((int(self.screen_coordinates(800)['r']),int(self.screen_coordinates(800)['r'])))
-
-        return im
 
 
 def image_to_circle(img: Image):
@@ -95,16 +98,16 @@ def image_to_circle(img: Image):
     mask = mask.resize(img.size, Image.ANTIALIAS)
     img.putalpha(mask)
 
-
-
     return img
 
 
+
 def main():
-    data = [{'id': k, 'datum': float(v[0])} for k, v in artists_data.items()]
+
+    data = [{'id': k, 'datum': pow(float(v[0]),1.5)} for k, v in artist_data.items()]
     circles = circ.circlify(data, show_enclosure=False)
 
-    im = Image.new('RGB', (1000, 1000), (128, 128, 128))
+    im = Image.new('RGB', (800, 800), (128, 128, 128))
     draw = ImageDraw.Draw(im)
 
     artists_circles = []
@@ -115,7 +118,6 @@ def main():
         x, y, r = circle.x, circle.y, circle.r
         l, r, u, low = cn.give_circle_coords((x, y), r * 400, (
         random.randrange(1, 255), random.randrange(1, 255), random.randrange(1, 255)))
-        # draw.ellipse((l, r, u, low), fill=(123, 0, 0), outline=None)
 
         name = circle.ex['id']
         try:
@@ -129,24 +131,6 @@ def main():
             print(name)
 
     im.show()
-
-    # artists_circles.append(CircleToDraw(circle, l,r,u,low))
-    # cn.draw_circle((x,y),r*400,(random.randrange(1,255), random.randrange(1,255), random.randrange(1,255)))
-
-#
-# for artists in artists_circles:
-#
-#     cords = artists.screen_coordinates(800)
-#     try:
-#         temp = artists.get_image("Bubbles/" + artists.name + '.png')
-#         im.paste(temp, (artists.left,artists.upper))
-#     except PIL.UnidentifiedImageError:
-#         print(artists.name)
-
-    #
-    # draw.ellipse((cords['x'], cords['y'], cords['x'] + (cords['r'])
-    #               , cords['y'] + (cords['r'])), fill=(random.randrange(1,255), random.randrange(1,255), random.randrange(1,255)))
-
 
 
 main()
