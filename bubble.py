@@ -60,16 +60,17 @@ def download_image(_data):
 
 
 class CircleToDraw():
-    def __init__(self, circle: circlify.Circle):
-        self.x = (1 + circle.x) / 2
-        self.y = (1 + circle.y) / 2
+    def __init__(self, circle: circlify.Circle,left,upper,right,lower):
+        self.left = left
+        self.right = right
+        self.upper = upper
+        self.lower = lower
         self.name = circle.ex['id']
         self.listens = circle.ex['datum']
         self.r = circle.r
         self.path = None
 
-        self.top_x = self.x - self.r
-        self.top_y = self.y - self.r
+
 
         self.image = None
 
@@ -128,7 +129,7 @@ for circle in circles:
 
 
 
-# artists_circles = []
+artists_circles = []
 # for circle in circles:
 #     temp = CircleToDraw(circle)
 #     artists_circles.append(temp)
@@ -152,7 +153,36 @@ cn: Canvas = Canvas(size=(800,800))
 
 for circle in circles:
     x,y,r = circle.x, circle.y, circle.r
-    cn.draw_circle((x,y),r*400,(random.randrange(1,255), random.randrange(1,255), random.randrange(1,255)))
+    l,r,u,low = cn.give_circle_coords((x,y),r*400,(random.randrange(1,255), random.randrange(1,255), random.randrange(1,255)))
+    draw.ellipse((l, r, u, low), fill=(123,0,0), outline=None)
+
+    name = circle.ex['id']
+    try:
+        img = Image.open("Bubbles/" + name + ".png")
+        img = img.resize((int(u-l),int(low-r)))
+        im.paste(img, (int(l),int(r)))
+    except (FileNotFoundError, PIL.UnidentifiedImageError):
+        print(name)
 
 
-cn.img.show()
+    # artists_circles.append(CircleToDraw(circle, l,r,u,low))
+    # cn.draw_circle((x,y),r*400,(random.randrange(1,255), random.randrange(1,255), random.randrange(1,255)))
+
+#
+# for artists in artists_circles:
+#
+#     cords = artists.screen_coordinates(800)
+#     try:
+#         temp = artists.get_image("Bubbles/" + artists.name + '.png')
+#         im.paste(temp, (artists.left,artists.upper))
+#     except PIL.UnidentifiedImageError:
+#         print(artists.name)
+
+    #
+    # draw.ellipse((cords['x'], cords['y'], cords['x'] + (cords['r'])
+    #               , cords['y'] + (cords['r'])), fill=(random.randrange(1,255), random.randrange(1,255), random.randrange(1,255)))
+
+im.show()
+
+
+# cn.img.show()

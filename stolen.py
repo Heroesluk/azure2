@@ -47,6 +47,15 @@ class Canvas:
         lower = self._rel_y_to_abs_y(y) + r
         self.draw.ellipse((left, upper, right, lower), fill=color, outline=None)
 
+    def give_circle_coords(self, pos, r: int, color):
+        x, y = pos
+        left = self._rel_x_to_abs_x(x) - r
+        right = self._rel_x_to_abs_x(x) + r
+        upper = self._rel_y_to_abs_y(y) - r
+        lower = self._rel_y_to_abs_y(y) + r
+        return left,upper,right,lower
+
+
     def draw_polygon(self, *points, color):
         abs_points = [(self.coord_to_coord_on_canvas(point)) for point in points]
         self.draw.polygon(abs_points, fill=color, outline=None)
