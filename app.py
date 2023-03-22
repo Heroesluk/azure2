@@ -4,8 +4,10 @@ from ColorScripts.color_check import return_imgs_with_most_color
 from database import select_from_id_list
 from DownloadDataAndAlbums import download_album_covers
 from ColorScripts.colors import ColorPalette
-
+from example import gif_creator
 app = Flask(__name__)
+from datetime import datetime
+
 
 IMG_FOLDER = os.path.join('static', 'images')
 app.config['UPLOAD_FOLDER'] = IMG_FOLDER
@@ -14,10 +16,16 @@ images = [i for i in os.listdir("static/images")]
 clr = ColorPalette()
 
 
+
 def clear_img_results():
     for f in os.listdir('static/images'):
         os.remove(os.path.join('static/images',f))
 
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('favicon.ico')
 
 @app.route("/", methods=["GET", "POST"])
 def hello_world():
@@ -28,6 +36,31 @@ def hello_world():
 
 
     return render_template("main.html")
+
+
+@app.route("/mosaic", methods=["GET", "POST"])
+def mosaic():
+    if request.method=="POST":
+        print("tak")
+        date_str = request.form["start_date"]
+        matrix_size = request.form["matrix_size"]
+        time_delta = request.form["time_delta"]
+
+        start_date = datetime.strptime(date_str,"%Y-%m-%d")
+        gif_creator(start_date, time_delta, int(matrix_size))
+
+        return redirect(url_for("display_mosaic"))
+
+
+
+    else:
+
+        return render_template("mosaic.html")
+
+@app.route("/display_mosaic", methods=["GET"])
+def display_mosaic():
+    return render_template("display_mosaic.html")
+
 
 
 @app.route("/login", methods=["GET", "POST"])

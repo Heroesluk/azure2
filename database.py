@@ -127,8 +127,7 @@ SET seq = 0 where name = 'AlbumList';""")
 
 
 clear_table()
-# create_albums_json('heroesluk',10,'albums1.json')
 
 
 insert_data(parse_json('albums.json'))
-print((read_rows((1,1,1,1,1,1))))
+
