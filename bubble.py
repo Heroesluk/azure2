@@ -1,16 +1,13 @@
 import os
+from concurrent.futures import as_completed
 
 import PIL
-import circlify
 import requests
-import matplotlib
 import circlify as circ
-from PIL import Image, ImageDraw, ImageChops, ImageOps
 import  random
+from requests_futures.sessions import FuturesSession
 
-from pathvalidate import ValidationError, validate_filename, sanitize_filename
-
-
+from pathvalidate import sanitize_filename
 
 from stolen import *
 
@@ -25,7 +22,7 @@ since the whole purpose of this script it to display most listened artists,
  """
 def get_top_listened_artists_with_img_links(user: str, limit: int):
     data = requests.get(
-        "http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json".format(user))
+        "http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&limit={}&format=json".format(user,limit))
     top_artists = data.json()['topartists']
 
     top_albums = requests.get(
@@ -68,32 +65,33 @@ def get_top_listened_albums_with_img_links(user: str, limit:int):
     return artists_data
 
 
-
-
-
-
-
-def download_image(_data):
+def async_down(_data):
+    session = FuturesSession(max_workers=20)
     saved = [i for i in os.listdir('Bubbles')]
+
+    futures = []
 
     for artist_name, (play_count, link) in _data.items():
         if len(link) > 0:
-            if artist_name not in saved:
-                try:
-                    img = requests.get(link).content
 
-                    with open('Bubbles/{}.png'.format(artist_name), 'wb') as f:
-                        f.write(img)
+            future = session.get(link)
+            future.name = artist_name
+            futures.append(future)
 
-                except KeyError:
-                    print("No image for: {}".format(artist_name))
+    for future in as_completed(futures):
+        resp = future.result()
 
-
-artist_data = get_top_listened_albums_with_img_links("IDieScreaming",30)
-
-download_image(artist_data)
+        with open('Bubbles/{}.png'.format(future.name), 'wb') as f:
+            f.write(resp.content)
 
 
+
+
+artist_data = get_top_listened_artists_with_img_links("heroesluk",100)
+
+# download_image(artist_data)
+
+async_down(artist_data)
 
 
 
@@ -121,7 +119,7 @@ def main():
 
     artists_circles = []
 
-    cn: Canvas = Canvas(size=(800, 800))
+    cn: ConvertToCarthesian = ConvertToCarthesian(size=(800, 800))
 
     for circle in circles:
         x, y, r = circle.x, circle.y, circle.r
@@ -136,7 +134,7 @@ def main():
             img = img.resize((int(u - l), int(low - r)))
 
             im.paste(img, (int(l), int(r)),img)
-        except (FileNotFoundError, PIL.UnidentifiedImageError):
+        except (FileNotFoundError, PIL.UnidentifiedImageError, ValueError):
             print(name)
 
     im.show()
