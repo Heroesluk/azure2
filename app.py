@@ -7,7 +7,7 @@ from ColorScripts.colors import ColorPalette
 from example import gif_creator
 app = Flask(__name__)
 from datetime import datetime
-
+from bubble import main
 
 IMG_FOLDER = os.path.join('static', 'images')
 app.config['UPLOAD_FOLDER'] = IMG_FOLDER
@@ -96,3 +96,25 @@ def image(lng):
 @app.route("/<usr>", methods=["GET", "POST"])
 def user(usr):
     return f"<h1>{usr}</h1>"
+
+
+@app.route("/bubbles", methods=["GET", "POST"])
+def bubbles():
+    if request.method == "POST":
+        bubble_type = request.form['record_type']
+        number_of_bubbles = request.form['records_number']
+        nickname = request.form['nickname']
+        main(bubble_type,int(number_of_bubbles),nickname)
+
+        return redirect(url_for("display_bubble"))
+
+
+
+
+
+    return render_template("bubble_select.html")
+
+
+@app.route("/display_bubble", methods=["GET", "POST"])
+def display_bubble():
+    return  render_template("display_results.html")
