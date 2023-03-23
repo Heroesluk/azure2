@@ -1,101 +1,25 @@
 from flask import Flask, render_template, request, redirect, url_for
 import os
 from ColorScripts.color_check import return_imgs_with_most_color
-from database import select_from_id_list
-from DownloadDataAndAlbums import download_album_covers
 from ColorScripts.colors import ColorPalette
-from example import gif_creator
+
 app = Flask(__name__)
 from datetime import datetime
 from bubble import main
-
-IMG_FOLDER = os.path.join('static', 'images')
-app.config['UPLOAD_FOLDER'] = IMG_FOLDER
-images = [i for i in os.listdir("static/images")]
-
-clr = ColorPalette()
-
-
-
-def clear_img_results():
-    for f in os.listdir('static/images'):
-        os.remove(os.path.join('static/images',f))
-
 
 
 @app.route('/favicon.ico')
 def favicon():
     return app.send_static_file('favicon.ico')
 
+
 @app.route("/", methods=["GET", "POST"])
 def hello_world():
-
     if request.method == "POST":
         name = request.form["user_name"]
         print(name)
 
-
     return render_template("main.html")
-
-
-@app.route("/mosaic", methods=["GET", "POST"])
-def mosaic():
-    if request.method=="POST":
-        print("tak")
-        date_str = request.form["start_date"]
-        matrix_size = request.form["matrix_size"]
-        time_delta = request.form["time_delta"]
-
-        start_date = datetime.strptime(date_str,"%Y-%m-%d")
-        gif_creator(start_date, time_delta, int(matrix_size))
-
-        return redirect(url_for("display_mosaic"))
-
-
-
-    else:
-
-        return render_template("mosaic.html")
-
-@app.route("/display_mosaic", methods=["GET"])
-def display_mosaic():
-    return render_template("display_mosaic.html")
-
-
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    clear_img_results()
-
-    if request.method == "POST":
-        lenght = (request.form["matrix_size"])
-        color_name = request.form["mosaic_color"]
-        print(color_name,'huj')
-
-        color = clr.access_by_name(color_name)
-        print(color,'huj')
-
-        imgs = return_imgs_with_most_color(int(lenght)*int(lenght), 'AlbumCovers', color)
-        imgs = select_from_id_list(imgs)
-        download_album_covers(imgs, 'static/images')
-
-        return redirect(url_for("image", lng=lenght))
-
-
-    return render_template("login.html")
-
-
-@app.route("/<lng>", methods=["GET", "POST"])
-def image(lng):
-    data = [os.path.join('static/images', i) for i in os.listdir('static/images')][:int(lng)*int(lng)]
-    print(data)
-
-    return render_template("index.html", image_file=data)
-
-
-@app.route("/<usr>", methods=["GET", "POST"])
-def user(usr):
-    return f"<h1>{usr}</h1>"
 
 
 @app.route("/bubbles", methods=["GET", "POST"])
@@ -104,17 +28,13 @@ def bubbles():
         bubble_type = request.form['record_type']
         number_of_bubbles = request.form['records_number']
         nickname = request.form['nickname']
-        main(bubble_type,int(number_of_bubbles),nickname)
+        main(bubble_type, int(number_of_bubbles), nickname)
 
         return redirect(url_for("display_bubble"))
-
-
-
-
 
     return render_template("bubble_select.html")
 
 
 @app.route("/display_bubble", methods=["GET", "POST"])
 def display_bubble():
-    return  render_template("display_results.html")
+    return render_template("display_results.html")
