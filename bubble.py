@@ -4,7 +4,7 @@ from concurrent.futures import as_completed
 import PIL
 import requests
 import circlify as circ
-import  random
+import random
 from requests_futures.sessions import FuturesSession
 
 from pathvalidate import sanitize_filename
@@ -21,13 +21,17 @@ since the whole purpose of this script it to display most listened artists,
  
  Returns dict in format of {artist_name: (play_counts, img_link)}
  """
+
+
 def get_top_listened_artists_with_img_links(user: str, limit: int):
     data = requests.get(
-        "http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&limit={}&format=json".format(user,limit))
+        "http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&limit={}&format=json".format(
+            user, limit))
     top_artists = data.json()['topartists']
 
     top_albums = requests.get(
-        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit={}'.format(user,limit)).json()['topalbums']
+        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit={}'.format(
+            user, limit)).json()['topalbums']
 
     artists_data = {}
     keys = {}
@@ -46,22 +50,21 @@ def get_top_listened_artists_with_img_links(user: str, limit: int):
     return artists_data
 
 
-
-def get_top_listened_albums_with_img_links(user: str, limit:int):
-    print('http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit={}'.format(user,limit))
+##size 100 is most optimal upper limit, after it circlify slows downs significantly
+def get_top_listened_albums_with_img_links(user: str, limit: int):
+    print(
+        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit={}'.format(
+            user, limit))
     images_data = requests.get(
-        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit={}'.format(user,limit)).json()
+        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit={}'.format(
+            user, limit)).json()
 
     artists_data = {}
     keyz = {}
 
-
     for i in images_data['topalbums']['album']:
         if i['artist']['name'] not in keyz.keys():
-            artists_data[sanitize_filename(i['name'])] = (i['playcount'],i['image'][2]['#text'])
-
-
-
+            artists_data[sanitize_filename(i['name'])] = (i['playcount'], i['image'][2]['#text'])
 
     return artists_data
 
@@ -74,7 +77,6 @@ def async_down(_data):
 
     for artist_name, (play_count, link) in _data.items():
         if len(link) > 0:
-
             future = session.get(link)
             future.name = artist_name
             futures.append(future)
@@ -84,12 +86,6 @@ def async_down(_data):
 
         with open('Bubbles/{}.png'.format(future.name), 'wb') as f:
             f.write(resp.content)
-
-
-
-
-
-
 
 
 def image_to_circle(img: Image):
@@ -105,23 +101,33 @@ def image_to_circle(img: Image):
     return img
 
 
+def main(bubble_type: str, size: int, nickname: str):
+    if bubble_type == 'album':
+        artist_data = get_top_listened_albums_with_img_links(nickname, size)
+    elif bubble_type == 'artist':
+        artist_data = get_top_listened_artists_with_img_links(nickname, size)
+    else:
+        raise AttributeError("Incorrect bubble type")
 
-def main():
+    if size > 100 or size < 10:
+        raise AttributeError("Incorrect size")
+    elif len(nickname) == 0:
+        raise AttributeError("No nickname specified")
 
-    data = [{'id': k, 'datum': pow(float(v[0]),1.5)} for k, v in artist_data.items()]
+
+
+    async_down(artist_data)
+
+    data = [{'id': k, 'datum': pow(float(v[0]), 1.5)} for k, v in artist_data.items()]
     circles = circ.circlify(data, show_enclosure=False)
 
     im = Image.new('RGB', (800, 800), (128, 128, 128))
-    draw = ImageDraw.Draw(im)
-
-    artists_circles = []
-
     cn: ConvertToCarthesian = ConvertToCarthesian(size=(800, 800))
 
     for circle in circles:
         x, y, r = circle.x, circle.y, circle.r
         l, r, u, low = cn.give_circle_coords((x, y), r * 400, (
-        random.randrange(1, 255), random.randrange(1, 255), random.randrange(1, 255)))
+            random.randrange(1, 255), random.randrange(1, 255), random.randrange(1, 255)))
 
         name = circle.ex['id']
         try:
@@ -130,20 +136,10 @@ def main():
             img = image_to_circle(img)
             img = img.resize((int(u - l), int(low - r)))
 
-            im.paste(img, (int(l), int(r)),img)
+            im.paste(img, (int(l), int(r)), img)
         except (FileNotFoundError, PIL.UnidentifiedImageError, ValueError):
             print(name)
 
-
-    im.show()
-
+    im.save("static/bubble.png")
 
 
-
-##size 100 is most optimal upper limit, after it circlify slows downs significantly
-artist_data = get_top_listened_albums_with_img_links("heroesluk",100)
-
-
-async_down(artist_data)
-
-cProfile.run('main()')
