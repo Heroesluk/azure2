@@ -114,8 +114,8 @@ def get_top_listened_albums_with_img_links(user: str, limit: int):
 
 def async_down(_data):
     session = FuturesSession(max_workers=20)
-    saved = [i for i in os.listdir('Bubbles')]
-
+    if not os.path.exists("Bubbles"):
+        os.makedirs("Bubbles")
     futures = []
 
     for artist_name, (play_count, link) in _data.items():
