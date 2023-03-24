@@ -13,7 +13,7 @@ body {
     display: flex;
     justify-content: center;
     flex-direction: column;
-    background-color: #c2c2c2;
+    background-color: white;
     margin: 0 0 0 0;
     font-family: "Roboto", serif;
 }
@@ -83,10 +83,11 @@ body {
 
 }
 
-.topinfo{
+.topinfo {
     margin-bottom: 2rem;
 }
-.topinfo > *{
+
+.topinfo > * {
     margin-bottom: 0.3rem;
 }
 
@@ -96,10 +97,19 @@ h1, h2, h3, h4 {
     margin-bottom: 0;
 }
 
-.img_center{
+.img_center {
     display: block;
     margin: auto;
     width: 75%;
+}
+
+.tool_redirect {
+    text-decoration: none;
+    color: #333333;
+}
+
+.tool_redirect:hover{
+    background-color: #c2c2c2;
 }
 
 .box {
