@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, request, redirect, url_for
 app = Flask(__name__)
 from bubble import main
@@ -10,6 +12,7 @@ def favicon():
 
 @app.route("/", methods=["GET", "POST"])
 def hello_world():
+    print(os.getcwd())
     if request.method == "POST":
         name = request.form["user_name"]
         print(name)
