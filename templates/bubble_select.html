@@ -1,27 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{# templates/bubble_select.html #}
 
-<form action="#" method="post">
-    <label for="nickname">Select your lastfm nickname</label>
-    <input type="text" name="nickname">
-    <label for="number">Select number of records: </label>
-    <input type="number" id="records_number" name="records_number"
-           min="10" max="150">
-    <label for="record_type">Select whether you want to create bubble from top albums, or top artists</label>
-    <select name="record_type">
-        <option value="artist">artists</option>
-        <option value="album">albums</option>
-    </select>
+{% extends "base.html" %}
+{% block content %}
+    <form action="#" method="post">
+        <label for="nickname">Select your lastfm nickname</label>
+        <input type="text" name="nickname">
+        <label for="number">Select number of records: </label>
+        <input type="number" id="records_number" name="records_number"
+               min="10" max="150">
+        <label for="record_type">Select whether you want to create bubble from top albums, or top artists</label>
+        <select name="record_type">
+            <option value="artist">artists</option>
+            <option value="album">albums</option>
+        </select>
 
-    <input type="submit">
+        <input type="submit">
+
+    </form>
+{% endblock content %}
 
 
-</form>
 
-</body>
-</html>

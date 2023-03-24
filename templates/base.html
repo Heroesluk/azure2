@@ -1,0 +1,26 @@
+{# templates/base.html #}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="data:;base64,=">
+    <title>yes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+<div class="topnav">
+    <a>Home</a>
+    <a>Privacy</a>
+    <a>Contact</a>
+    <a>About</a>
+
+</div>
+{% block content %}
+{% endblock content %}
+
+</body>
+</html>

@@ -1,22 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="icon" href="data:;base64,=">
-    <title>tak</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-</head>
-<body>
+{# templates/main.html #}
 
-<div class="topnav">
-    <a>Home</a>
-    <a>Privacy</a>
-    <a>Contact</a>
-    <a>About</a>
+{% extends "base.html" %}
 
-</div>
+{% block content %}
+
 <div class="content">
     <div class="topinfo">
         <h1><b>Last.fm</b> toolbox</h1>
@@ -28,7 +15,7 @@
 
     </div>
 
-    <a class="tool_redirect">
+    <a class="tool_redirect" href="{{ url_for('bubbles') }}">
         <div class="tool">
             <h4>Gif-mosaic</h4>
             <img class="img_center" src="/static/movie.gif" width="100%">
@@ -41,7 +28,7 @@
 
     </a>
 
-    <a class="tool_redirect" href="google.com">
+    <a class="tool_redirect" href="{{ url_for('bubbles') }}">
         <div class="tool">
             <h4>Bubble chart</h4>
             <img class="img_center" src="/static/example2.png" width="50%">
@@ -52,7 +39,7 @@
         </div>
     </a>
 
-    <a class="tool_redirect">
+    <a class="tool_redirect" href="{{ url_for('bubbles') }}">
         <div class="tool">
             <h4>Color-mosaic</h4>
             <img class="img_center" src="/static/colormosaic.jpg">
@@ -65,6 +52,4 @@
 
 </div>
 
-
-</body>
-</html>
+{%  endblock %}

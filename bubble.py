@@ -183,6 +183,3 @@ def main(bubble_type: str, size: int, nickname: str, file_name: str):
 
     im.save("static/{}.png".format(file_name))
 
-
-
-main("artist",60, "heroesluk", "example2")
