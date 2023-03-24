@@ -1,5 +1,5 @@
 import os
-
+import uuid
 from flask import Flask, render_template, request, redirect, url_for
 app = Flask(__name__)
 from bubble import main
@@ -23,10 +23,11 @@ def hello_world():
 @app.route("/bubbles", methods=["GET", "POST"])
 def bubbles():
     if request.method == "POST":
+        file_name = uuid.uuid1()
         bubble_type = request.form['record_type']
         number_of_bubbles = request.form['records_number']
         nickname = request.form['nickname']
-        main(bubble_type, int(number_of_bubbles), nickname)
+        main(bubble_type, int(number_of_bubbles), nickname, file_name)
 
         return redirect(url_for("display_bubble"))
 

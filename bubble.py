@@ -144,7 +144,7 @@ def image_to_circle(img: Image):
     return img
 
 
-def main(bubble_type: str, size: int, nickname: str):
+def main(bubble_type: str, size: int, nickname: str, file_name: str):
     if bubble_type == 'album':
         artist_data = get_top_listened_albums_with_img_links(nickname, size)
     elif bubble_type == 'artist':
@@ -181,4 +181,4 @@ def main(bubble_type: str, size: int, nickname: str):
         except (FileNotFoundError, UnidentifiedImageError, ValueError):
             print(name)
 
-    im.save("static/bubble.png")
+    im.save("static/{}.png".format(file_name))
