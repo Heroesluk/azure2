@@ -27,13 +27,14 @@ def bubbles():
         bubble_type = request.form['record_type']
         number_of_bubbles = request.form['records_number']
         nickname = request.form['nickname']
-        main(bubble_type, int(number_of_bubbles), nickname, file_name)
+        main(bubble_type, int(number_of_bubbles), nickname, str(file_name))
 
-        return redirect(url_for("display_bubble"))
+        return redirect(url_for("display_bubble",file_name=file_name))
 
     return render_template("bubble_select.html")
 
 
 @app.route("/display_bubble", methods=["GET", "POST"])
 def display_bubble():
-    return render_template("display_results.html")
+    print(request.args.get("file_name"))
+    return render_template("display_results.html", file_name=request.args.get("file_name"))

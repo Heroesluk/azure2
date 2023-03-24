@@ -73,7 +73,7 @@ def get_top_listened_artists_with_img_links(user: str, limit: int):
     top_artists = data.json()['topartists']
 
     top_albums = requests.get(
-        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit={}'.format(
+        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit=500'.format(
             user, limit)).json()['topalbums']
 
     artists_data = {}
