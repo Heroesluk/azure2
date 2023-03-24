@@ -107,7 +107,7 @@ def get_top_listened_albums_with_img_links(user: str, limit: int):
 
     for i in images_data['topalbums']['album']:
         if i['artist']['name'] not in keyz.keys():
-            artists_data[sanitize_filename(i['name'])] = (i['playcount'], i['image'][2]['#text'])
+            artists_data[sanitize_filename(i['name'])] = (i['playcount'], i['image'][3]['#text'])
 
     return artists_data
 
@@ -162,7 +162,7 @@ def main(bubble_type: str, size: int, nickname: str, file_name: str):
     data = [{'id': k, 'datum': pow(float(v[0]), 1.5)} for k, v in artist_data.items()]
     circles = circ.circlify(data, show_enclosure=False)
 
-    im = Image.new('RGB', (800, 800), (128, 128, 128))
+    im = Image.new('RGB', (800, 800), (255, 139, 111))
     cn: ConvertToCarthesian = ConvertToCarthesian(size=(800, 800))
 
     for circle in circles:
@@ -182,3 +182,7 @@ def main(bubble_type: str, size: int, nickname: str, file_name: str):
             print(name)
 
     im.save("static/{}.png".format(file_name))
+
+
+
+main("artist",60, "heroesluk", "example2")

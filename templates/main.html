@@ -3,19 +3,59 @@
 <head>
     <link rel="icon" href="data:;base64,=">
     <title>tak</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
 
-<form action="#" method="post">
-  <div>
-    <label for="name">Name:</label>
-    <input type="text" id="name" name="user_name">
-  </div>
+<div class="topnav">
+    <a>Home</a>
+    <a>Privacy</a>
+    <a>Contact</a>
+    <a>About</a>
 
-  <div class="button">
-    <button type="submit">Send your message</button>
-  </div>
-</form>
+</div>
+<div class="content">
+    <div class="topinfo">
+        <h1><b>Last.fm</b> toolbox</h1>
+        <h2>Lets terrorize last.fm api together!
+            What's the point in listening to music if you can't bother
+            others with your cool charts
+            They don't care about mosaic? How about bubble-chart then?</h2>
+        <h3>Our tools: </h3>
+
+    </div>
+
+    <div class="tool">
+        <h4>Gif-mosaic</h4>
+        <img src="/static/movie.gif" width="100%">
+
+        <div>Combine your charts from different time periods <br>
+            With one gif you can show what you've been listening to for past year
+        </div>
+
+    </div>
+
+    <div class="tool">
+        <h4>Bubble chart</h4>
+        <img src="/static/example2.png" width="100%">
+        <div>Visualize your favorite albums or artists <br> with bubbles of size represented by the
+            number of your scrobbles
+        </div>
+
+    </div>
+
+    <div class="tool">
+        <h4>Color-mosaic</h4>
+        <img src="/static/colormosaic.jpg" width=100%">
+        <div>Group all of your favorite albums by the color <br> work in progress</div>
+
+    </div>
+
+
+</div>
 
 
 </body>

@@ -13,7 +13,86 @@ body {
     display: flex;
     justify-content: center;
     flex-direction: column;
+    background-color: #c2c2c2;
+    margin: 0 0 0 0;
+    font-family: "Roboto", serif;
 }
+
+.topnav {
+    background-color: #333;
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+}
+
+.content h1 {
+    font-family: sans-serif;
+    font-size: 5em;
+    font-weight: normal;
+}
+
+.topnav a {
+    font-size: 20px;
+    padding: 4px 14px 4px 14px;
+    color: #f2f2f2;
+}
+
+.topnav a:hover {
+    background-color: #AAAAAA;
+    color: #333333;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-right: 500px;
+
+
+}
+
+.content h2 {
+    font-size: 2.6em;
+    font-weight: normal;
+}
+
+.content h3 {
+    font-size: 3em;
+    font-weight: bold;
+
+}
+
+.content h4 {
+    font-size: 2em;
+    text-align: center;
+}
+
+.tool {
+    font-size: 2em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+
+.content > * {
+    margin-left: 25%;
+    margin-right: 25%;
+
+}
+
+.topinfo{
+    margin-bottom: 2em;
+}
+.topinfo > *{
+    margin-bottom: 0.3em;
+}
+
+h1, h2, h3, h4 {
+    font-family: sans-serif;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 
 .box {
     background: #444;
