@@ -27,7 +27,7 @@ body {
 
 .content h1 {
     font-family: sans-serif;
-    font-size: 5em;
+    font-size: 5rem;
     font-weight: normal;
 }
 
@@ -52,25 +52,28 @@ body {
 }
 
 .content h2 {
-    font-size: 2.6em;
+    font-size: 2.6rem;
     font-weight: normal;
 }
 
 .content h3 {
-    font-size: 3em;
+    font-size: 3rem;
     font-weight: bold;
 
 }
 
 .content h4 {
-    font-size: 2em;
+    font-size: 2rem;
     text-align: center;
 }
 
 .tool {
-    font-size: 2em;
-    margin-top: 1em;
-    margin-bottom: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 
@@ -81,10 +84,10 @@ body {
 }
 
 .topinfo{
-    margin-bottom: 2em;
+    margin-bottom: 2rem;
 }
 .topinfo > *{
-    margin-bottom: 0.3em;
+    margin-bottom: 0.3rem;
 }
 
 h1, h2, h3, h4 {
@@ -93,6 +96,11 @@ h1, h2, h3, h4 {
     margin-bottom: 0;
 }
 
+.img_center{
+    display: block;
+    margin: auto;
+    width: 75%;
+}
 
 .box {
     background: #444;
