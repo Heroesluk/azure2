@@ -1,10 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-import os
-from ColorScripts.color_check import return_imgs_with_most_color
-from ColorScripts.colors import ColorPalette
-
 app = Flask(__name__)
-from datetime import datetime
 from bubble import main
 
 
