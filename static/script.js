@@ -9,6 +9,6 @@ window.onload = function () {
 };
 
 function watchColorPicker(event) {
-        document.getElementById("results_background").style.backgroundColor = event.target.value;
+    document.getElementById("results_background").style.backgroundColor = event.target.value;
 
 }

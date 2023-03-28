@@ -1,6 +1,9 @@
 import os
 import uuid
+
+import flask
 from flask import Flask, render_template, request, redirect, url_for
+
 app = Flask(__name__)
 from bubble import main
 
@@ -12,10 +15,6 @@ def favicon():
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-    print(os.getcwd())
-    if request.method == "POST":
-        name = request.form["user_name"]
-        print(name)
 
     return render_template("main.html")
 
@@ -29,12 +28,17 @@ def bubbles():
         nickname = request.form['nickname']
         main(bubble_type, int(number_of_bubbles), nickname, str(file_name))
 
-        return redirect(url_for("display_bubble",file_name=file_name))
+        return redirect(url_for("display_bubble", file_name=file_name))
 
     return render_template("bubble_select.html")
 
 
 @app.route("/display_bubble", methods=["GET", "POST"])
 def display_bubble():
-    print(request.args.get("file_name"))
-    return render_template("display_results.html", file_name=request.args.get("file_name"))
+
+    if request.method=="POST":
+        if 'color' in request.form.keys():
+            print(request.form['color'])
+
+    filename = request.args.get("file_name")
+    return render_template("display_results.html", file_name=filename)

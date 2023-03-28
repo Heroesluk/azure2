@@ -5,7 +5,12 @@
     <div id="results_background">
         <img src="/static/{{ file_name }}.png">
     </div>
-    <button onclick="changeBodyBg()">Change color</button>
-    <input id="color_picker" type="color">
+
+    <form action="#" method="post">
+        <input id="color_picker" type="color" name="color">
+        <input type="text" name="dziala">
+        <label> change background color of the bubble chart</label>
+        <input type="submit">Download chart</input>
+    </form>
 
 {% endblock content %}
