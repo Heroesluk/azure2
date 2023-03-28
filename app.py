@@ -1,9 +1,11 @@
 import os
 import uuid
+from datetime import datetime
 
 import flask
 from flask import Flask, render_template, request, redirect, url_for
 
+from gif_creator import gif_creator
 app = Flask(__name__)
 from bubble import main
 
@@ -42,3 +44,33 @@ def display_bubble():
 
     filename = request.args.get("file_name")
     return render_template("display_results.html", file_name=filename)
+
+
+
+############################################
+##########GIF CREATOR#######################
+############################################
+
+@app.route("/mosaic", methods=["GET", "POST"])
+def mosaic():
+    if request.method=="POST":
+        print("tak")
+        date_str = request.form["start_date"]
+        matrix_size = request.form["matrix_size"]
+        time_delta = request.form["time_delta"]
+
+        start_date = datetime.strptime(date_str,"%Y-%m-%d")
+        gif_creator(start_date, time_delta, int(matrix_size))
+
+        return redirect(url_for("display_mosaic"))
+
+
+
+    else:
+
+        return render_template("mosaic.html")
+
+@app.route("/display_mosaic", methods=["GET"])
+def display_mosaic():
+    return render_template("display_mosaic.html")
+
