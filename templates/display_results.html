@@ -2,5 +2,10 @@
 
 {% extends "base.html" %}
 {% block content %}
-    <img src="/static/{{ file_name }}.png">
+    <div id="results_background">
+        <img src="/static/{{ file_name }}.png">
+    </div>
+    <button onclick="changeBodyBg()">Change color</button>
+    <input id="color_picker" type="color">
+
 {% endblock content %}

@@ -162,7 +162,8 @@ def main(bubble_type: str, size: int, nickname: str, file_name: str):
     data = [{'id': k, 'datum': pow(float(v[0]), 1.5)} for k, v in artist_data.items()]
     circles = circ.circlify(data, show_enclosure=False)
 
-    im = Image.new('RGB', (800, 800), (255, 139, 111))
+    im = Image.new('RGBA', (800, 800), (255, 255, 255,0))
+
     cn: ConvertToCarthesian = ConvertToCarthesian(size=(800, 800))
 
     for circle in circles:

@@ -11,7 +11,7 @@ def favicon():
 
 
 @app.route("/", methods=["GET", "POST"])
-def hello_world():
+def home():
     print(os.getcwd())
     if request.method == "POST":
         name = request.form["user_name"]
