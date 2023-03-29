@@ -1,3 +1,6 @@
+import cProfile
+from concurrent.futures import as_completed
+
 import requests
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -5,6 +8,7 @@ from typing import List, Tuple, Dict
 import os
 import imageio
 from PIL import Image
+from requests_futures.sessions import FuturesSession
 
 files = []
 
@@ -41,10 +45,12 @@ class Album():
         if self.url in cache.keys():
             try:
                 self.image = cache[self.url]['image'][3]['#text']
+
             except KeyError:
                 print("Couldn't find image for {} in cache, running request for image".format(self.album_name))
 
         else:
+            print("Getting request")
             data = requests.get(
                 "http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=d6e02ae58fcf6daaea788ce99c879f9c&artist={}&album={}&format=json".format(
                     self.artist, self.album_name)).json()
@@ -67,7 +73,7 @@ class Album():
         if file_name in files:
             self.image_path = file_name
         else:
-            if("GIF" not in os.listdir()):
+            if ("GIF" not in os.listdir()):
                 os.mkdir("GIF")
 
             with open("GIF/{}.jpg".format(file_name), 'wb') as f:
@@ -108,17 +114,16 @@ def get_top_albums(start_date: int, end_date: int, top: int = 1000) -> List[Albu
     except KeyError:
         print("Couldn't get link for {}".format(start_date))
 
-
     return albums
 
 
 # gets dict of favorite albums per specified time period
 # i.e {month1:[Album1, Album2], month2:[Album4, Album1]} etc
-def get_list_of_fav_artists(start_date: datetime, time_delta: relativedelta, matrix_size: int):
+def get_list_of_fav_artists(start_date: datetime, time_delta: relativedelta, matrix_size: int, end_date=datetime.now()):
     album_tops = {}
     cache = get_cache_album_data()
 
-    while start_date < datetime.now():
+    while start_date < end_date:
         albums = get_top_albums(int(start_date.timestamp()), int((start_date + time_delta).timestamp()),
                                 matrix_size * matrix_size)
         print("Top for: {}".format(start_date))
@@ -135,6 +140,8 @@ def get_list_of_fav_artists(start_date: datetime, time_delta: relativedelta, mat
         print("\n" * 3)
 
     return album_tops
+
+
 
 
 def create_maxtrix(matrix_size, path, album_file_names, date_key=None):
@@ -168,12 +175,13 @@ def create_gif():
     imageio.mimsave('static/movie.gif', images, fps=1)
 
 
-deltas = {"week":relativedelta(weeks=+1), "month":relativedelta(months=+1), "3month":relativedelta(months=+3),"6month":relativedelta(months=+6), "year":relativedelta(months=+12)}
+deltas = {"week": relativedelta(weeks=+1), "month": relativedelta(months=+1), "3month": relativedelta(months=+3),
+          "6month": relativedelta(months=+6), "year": relativedelta(months=+12)}
+
 
 def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: datetime = None):
     time_delta = deltas[delta]
     data = get_list_of_fav_artists(start_date, time_delta, matrix_size)
-
 
     for date, albums_per_date in data.items():
         albums = data[date]
@@ -183,9 +191,12 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: da
     create_gif()
 
 
-#gif_creator(datetime(2020, 1, 1), '3month', 3)
-
+# cProfile.run('gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022,12,1)')
 # try to further optimize it
 # add date banner
 # flask app instead of script
 # deploy as docker image on heroku
+
+
+
+print(len(os.listdir("GIF")))
