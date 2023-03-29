@@ -184,3 +184,7 @@ def main(bubble_type: str, size: int, nickname: str, file_name: str):
 
     im.save("static/{}.png".format(file_name))
 
+
+
+def download_with_color():
+    pass

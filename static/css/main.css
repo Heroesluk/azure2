@@ -159,10 +159,23 @@ input[type=number] {
     -moz-appearance:textfield;
 }
 
+input[type=submit]{
+    background-color: tomato;
+}
+
 
 #input_name{
     width: 35%;
 }
 #input_records{
     width: 35%;
+}
+
+.vertical_form{
+
+}
+.vertical_container{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }

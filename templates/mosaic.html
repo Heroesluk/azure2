@@ -1,34 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<form action="#" method="post">
-    <label for="start_date">Select date: </label>
-    <input type="date" id="start_date" name="start_date"
-           value="2022-01-01">
-    <label for="matrix_size">Select matrix size: </label>
-    <select name="matrix_size">
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-    </select>
+{# templates/mosaic.html #}
 
-    <label for="time_delta">Select time delta: </label>
-    <select name="time_delta">
-        <option value="week">week</option>
-        <option value="month">month</option>
-        <option value="3month">3 months</option>
-        <option value="6month">6 months</option>
-        <option value="year">year</option>
-    </select>
+{% extends "base.html" %}
+{% block content %}
+    <form action="#" method="post">
 
-    <input type="submit">
+        <div class="vertical_container">
+            <div class="vertical_form">
+
+                <label for="start_date">Select date: </label>
+                <input type="date" id="start_date" name="start_date"
+                       value="2022-01-01">
+
+            </div>
+            <div class="vertical_form">
+                <label for="matrix_size">Select matrix size: </label>
+                <select name="matrix_size">
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+
+            </div>
+
+            <div class="vertical_form">
+                <label for="time_delta">Select time delta: </label>
+                <select name="time_delta">
+                    <option value="week">week</option>
+                    <option value="month">month</option>
+                    <option value="3month">3 months</option>
+                    <option value="6month">6 months</option>
+                    <option value="year">year</option>
+                </select>
+            </div>
+
+            <div class="vertical_form">
+                <input class="submit_btn" type="submit">
+
+            </div>
+
+        </div>
 
 
-</form>
+    </form>
 
-</body>
-</html>
+{% endblock content %}
