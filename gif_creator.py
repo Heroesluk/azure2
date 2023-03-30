@@ -266,8 +266,7 @@ def get_record_name(album: AlbumFixed) -> str:
     return sanitize_filename(album.artist + "_" + album.album_name)
 
 
-
-def get_required_images_links(_top_albums_per_timeperiod: Dict[datetime, List[AlbumFixed]]) -> Dict[str,str]:
+def get_required_images_links(_top_albums_per_timeperiod: Dict[datetime, List[AlbumFixed]]) -> Dict[str, str]:
     records = set()
 
     for date, albums in _top_albums_per_timeperiod.items():
@@ -292,10 +291,27 @@ def get_required_images_links(_top_albums_per_timeperiod: Dict[datetime, List[Al
     return links_to_down
 
 
+def download_batch_imgs(links: Dict[str, str]):
+    session = FuturesSession(max_workers=20)
+
+    futures = []
+    for record, link in links.items():
+        future = session.get(link)
+        future.name = record
+        futures.append(future)
+
+    futures_dict = {}
+    for future in as_completed(futures):
+        resp = future.result()
+        if (resp):
+            with open('GIF/{}.png'.format(future.name), 'wb') as f:
+                f.write(resp.content)
+        else:
+            print("couldnt download {}".format(future.name))
 
 
 # album is in format of artist_albumname
-def get_img_links_manually(albums: List[str]) -> Dict[str,str]:
+def get_img_links_manually(albums: List[str]) -> Dict[str, str]:
     links = {}
     for album in albums:
         artist, album_name = album.split('_')
@@ -319,11 +335,6 @@ def get_img_links_manually(albums: List[str]) -> Dict[str,str]:
     return futures_dict
 
 
-
-
-
-
-
 def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: datetime = None):
     time_delta = deltas[delta]
     top_albums_per_timeperiod_json = fav_albums_per_timeperiod_json(start_date, time_delta, 17)
@@ -331,7 +342,8 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: da
     for date, _json in top_albums_per_timeperiod_json.items():
         top_albums_per_timeperiod[date] = get_top_albums_fixed(_json)
 
-    print(get_required_images_links(top_albums_per_timeperiod))
+    links = get_required_images_links(top_albums_per_timeperiod)
+    download_batch_imgs(links)
 
     # for date, albums_per_date in data.items():
     #     albums = data[date]
@@ -341,7 +353,7 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: da
     # create_gif()
 
 
-gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022,12,1)
+gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022, 12, 1)
 
 # cProfile.run('gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022,12,1)')
 # try to further optimize it
