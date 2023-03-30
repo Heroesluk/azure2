@@ -17,13 +17,23 @@ def convert_last_album_cover_link_to_id(link: str):
     return (link.split("/")[-1]).split('.jpg')[0]
 
 
-def get_cache_album_data():
+#http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=Heroesluk&limit=500&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json
+def top_albums_dict():
     data = requests.get(
         "http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&use"
         "r=Heroesluk&limit=500&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json").json()
 
     return {i['url']: i for i in data['topalbums']['album']}
 
+
+class AlbumFixed():
+    def __init__(self, data):
+        self.artist = data['artist']['#text']
+        self.album_name = data['name']
+        self.url = data['url']
+
+        self.rank = int(data["@attr"]['rank'])
+        self.play_count = int(data['playcount'])
 
 class Album():
     def __init__(self, data, rank_context=None):
@@ -117,11 +127,31 @@ def get_top_albums(start_date: int, end_date: int, top: int = 1000) -> List[Albu
     return albums
 
 
+def get_top_albums_fixed(start_date: int, end_date: int, top: int = 1000) -> List[AlbumFixed]:
+    data = requests.get(
+        "http://ws.audioscrobbler.com/2.0/?method=user.getweeklyalbumchart&user=heroesluk&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&from={}&to={}".format(
+            start_date, end_date))
+
+    data = data.json()
+    albums = []
+    try:
+        for i in (data["weeklyalbumchart"]["album"]):
+            albums.append(AlbumFixed(i))
+
+            if len(albums) > top:
+                return albums
+    except KeyError:
+        print("Couldn't get link for {}".format(start_date))
+
+    return albums
+
+
+
 # gets dict of favorite albums per specified time period
 # i.e {month1:[Album1, Album2], month2:[Album4, Album1]} etc
 def get_list_of_fav_artists(start_date: datetime, time_delta: relativedelta, matrix_size: int, end_date=datetime.now()):
     album_tops = {}
-    cache = get_cache_album_data()
+    cache = top_albums_dict()
 
     while start_date < end_date:
         albums = get_top_albums(int(start_date.timestamp()), int((start_date + time_delta).timestamp()),
@@ -142,6 +172,22 @@ def get_list_of_fav_artists(start_date: datetime, time_delta: relativedelta, mat
     return album_tops
 
 
+# gets dict of favorite albums per specified time period
+# i.e {month1:[Album1, Album2], month2:[Album4, Album1]} etc
+def fav_albums_per_timeperiod(start_date: datetime, time_delta: relativedelta, matrix_size: int, end_date=datetime.now()):
+    album_tops = {}
+    cache = top_albums_dict()
+
+    #redo this for async
+    while start_date < end_date:
+        albums = get_top_albums_fixed(int(start_date.timestamp()), int((start_date + time_delta).timestamp()),
+                                matrix_size * matrix_size)
+        print("Top for: {}".format(start_date))
+        album_tops[start_date] = albums
+        start_date += time_delta
+        print("\n" * 3)
+
+    return album_tops
 
 
 def create_maxtrix(matrix_size, path, album_file_names, date_key=None):
@@ -160,8 +206,6 @@ def create_maxtrix(matrix_size, path, album_file_names, date_key=None):
                 pass
 
     new_image.save("{}/mosaic_{}.jpg".format(path, date_key), "JPEG")
-
-
 def create_gif():
     paths = list(sorted(["GIF/{}".format(i) for i in os.listdir("GIF") if "mosaic" in i]))
     fp_out = "image.gif"
@@ -174,7 +218,6 @@ def create_gif():
 
     imageio.mimsave('static/movie.gif', images, fps=1)
 
-
 deltas = {"week": relativedelta(weeks=+1), "month": relativedelta(months=+1), "3month": relativedelta(months=+3),
           "6month": relativedelta(months=+6), "year": relativedelta(months=+12)}
 
@@ -182,14 +225,16 @@ deltas = {"week": relativedelta(weeks=+1), "month": relativedelta(months=+1), "3
 def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: datetime = None):
     time_delta = deltas[delta]
     data = get_list_of_fav_artists(start_date, time_delta, matrix_size)
+    print("dziala")
 
-    for date, albums_per_date in data.items():
-        albums = data[date]
-        album_file_names = [i.image_path for i in albums]
-        create_maxtrix(matrix_size, 'GIF', album_file_names, date.strftime("%Y-%m"))
+    # for date, albums_per_date in data.items():
+    #     albums = data[date]
+    #     album_file_names = [i.image_path for i in albums]
+    #     create_maxtrix(matrix_size, 'GIF', album_file_names, date.strftime("%Y-%m"))
+    #
+    # create_gif()
 
-    create_gif()
-
+gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022,12,1)
 
 # cProfile.run('gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022,12,1)')
 # try to further optimize it
