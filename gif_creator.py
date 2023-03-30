@@ -262,30 +262,40 @@ deltas = {"week": relativedelta(weeks=+1), "month": relativedelta(months=+1), "3
           "6month": relativedelta(months=+6), "year": relativedelta(months=+12)}
 
 
-def get_required_images_links(_top_albums_per_timeperiod: Dict[datetime, Dict]):
+def get_record_name(album: AlbumFixed) -> str:
+    return sanitize_filename(album.artist + "_" + album.album_name)
+
+
+
+def get_required_images_links(_top_albums_per_timeperiod: Dict[datetime, List[AlbumFixed]]) -> Dict[str,str]:
     records = set()
 
     for date, albums in _top_albums_per_timeperiod.items():
         for album in albums:
             # sanitize it, since it will also work as a filename after downloading
-            records.add(sanitize_filename(album.artist + "_" + album.album_name))
+            records.add(get_record_name(album))
 
     cache = top_albums_images()
     links_to_batch_download = []
     links_to_manually_download = []
 
-    for album in records:
-        if album in cache.keys():
-            links_to_batch_download.append(cache[album])
+    links_to_down = {}
+    for record in records:
+        if record in cache.keys():
+            links_to_batch_download.append(cache[record])
+            links_to_down[record] = cache[record]
         else:
-            links_to_batch_download.append(album)
+            links_to_batch_download.append(record)
 
-    links_to_batch_download.append(get_img_links_manually())
-    print(len(links_to_batch_download), len(records))
+    links_to_down.update(get_img_links_manually(links_to_manually_download))
+
+    return links_to_down
+
+
 
 
 # album is in format of artist_albumname
-def get_img_links_manually(albums: List[str]):
+def get_img_links_manually(albums: List[str]) -> Dict[str,str]:
     links = {}
     for album in albums:
         artist, album_name = album.split('_')
@@ -308,7 +318,8 @@ def get_img_links_manually(albums: List[str]):
 
     return futures_dict
 
-print(get_img_links_manually(["Haru Nemuri_harutosyura"]))
+
+
 
 
 
@@ -320,7 +331,7 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: da
     for date, _json in top_albums_per_timeperiod_json.items():
         top_albums_per_timeperiod[date] = get_top_albums_fixed(_json)
 
-    get_required_images_links(top_albums_per_timeperiod)
+    print(get_required_images_links(top_albums_per_timeperiod))
 
     # for date, albums_per_date in data.items():
     #     albums = data[date]
@@ -330,7 +341,7 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: da
     # create_gif()
 
 
-# gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022,12,1)
+gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022,12,1)
 
 # cProfile.run('gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022,12,1)')
 # try to further optimize it
