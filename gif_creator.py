@@ -55,6 +55,10 @@ class AlbumFixed():
         self.rank = int(data["@attr"]['rank'])
         self.play_count = int(data['playcount'])
 
+        self.image_path = get_record_name(self)
+
+
+
 
 class Album():
     def __init__(self, data, rank_context=None):
@@ -271,20 +275,20 @@ def get_required_images_links(_top_albums_per_timeperiod: Dict[datetime, List[Al
 
     for date, albums in _top_albums_per_timeperiod.items():
         for album in albums:
+            # print(get_record_name(album))
+
             # sanitize it, since it will also work as a filename after downloading
             records.add(get_record_name(album))
 
     cache = top_albums_images()
-    links_to_batch_download = []
     links_to_manually_download = []
 
     links_to_down = {}
     for record in records:
         if record in cache.keys():
-            links_to_batch_download.append(cache[record])
             links_to_down[record] = cache[record]
         else:
-            links_to_batch_download.append(record)
+            links_to_manually_download.append(record)
 
     links_to_down.update(get_img_links_manually(links_to_manually_download))
 
@@ -344,6 +348,13 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: da
 
     links = get_required_images_links(top_albums_per_timeperiod)
     download_batch_imgs(links)
+
+    imgs = [i for i in os.listdir("GIF")]
+    for date, albums in top_albums_per_timeperiod.items():
+        for album in albums:
+            if album.image_path + ".png" not in imgs:
+                print(album.album_name, album.image_path)
+
 
     # for date, albums_per_date in data.items():
     #     albums = data[date]
