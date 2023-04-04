@@ -10,6 +10,7 @@ import os
 import imageio
 from PIL import Image
 from requests_futures.sessions import FuturesSession
+import io
 
 files = []
 
@@ -56,6 +57,8 @@ class AlbumFixed():
         self.play_count = int(data['playcount'])
 
         self.image_path = get_record_name(self)
+
+        self.image = None
 
 
 # in a format of {
@@ -125,17 +128,19 @@ def fav_albums_per_timeperiod_json(start_date: datetime, time_delta: relativedel
     return futures_dict
 
 
-def create_maxtrix(matrix_size, path, album_file_names, date_key=None):
+def create_maxtrix(matrix_size, path, albums, date_key=None):
     # assume all images are same size
-    albums = [Image.open('{}/{}'.format(path, i)) for i in album_file_names]
-    album_size = albums[0].size[0]
+    try:
+        album_size = albums[0].image.size[0]
+    except AttributeError:
+        print(albums)
     new_image = Image.new('RGB', (matrix_size * album_size, matrix_size * album_size), (250, 250, 250))
 
     index = 0
     for x in range(matrix_size):
         for y in range(matrix_size):
             try:
-                new_image.paste(albums[index], (album_size * x, album_size * y))
+                new_image.paste(albums[index].image, (album_size * x, album_size * y))
                 index += 1
             except IndexError:
                 pass
@@ -189,30 +194,34 @@ def get_required_images_links(_top_albums_per_timeperiod: Dict[datetime, List[Al
     return links_to_down
 
 
-def download_batch_imgs(links: Dict[str, str]):
+def download_batch_imgs(links: Dict[str, str]) -> Dict[str, Image.Image]:
     session = FuturesSession(max_workers=20)
 
     skipped = 0
     futures = []
+    print(links)
     for record, link in links.items():
-        if len(link)>0:
+
+        if len(link) > 0:
             future = session.get(link)
             future.name = record
             futures.append(future)
 
-    futures_dict = {}
+    imgs_data = {}
     for future in as_completed(futures):
         try:
             resp = future.result()
-            if resp:
-                with open('GIF/{}.png'.format(future.name), 'wb') as f:
-                    f.write(resp.content)
+
+            if resp.ok:
+                f = io.BytesIO(resp.content)
+                imgs_data[future.name] = Image.open(f)
+
             else:
                 print("couldnt download {}".format(future.name))
         except requests.exceptions.MissingSchema:
             print(future, future.name)
 
-
+    return imgs_data
 
 
 # album is in format of artist_albumname
@@ -248,22 +257,20 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: da
         top_albums_per_timeperiod[date] = get_top_albums_fixed(_json)
 
     links = get_required_images_links(top_albums_per_timeperiod)
-    # download_batch_imgs(links)
+    imgs_data = download_batch_imgs(links)
 
-    imgs = [i for i in os.listdir("GIF")]
-
-
+    # imgs = [i for i in os.listdir("GIF")]
 
     for date in sorted(top_albums_per_timeperiod.keys()):
         albums: List[AlbumFixed] = top_albums_per_timeperiod[date]
-        print("\n"*2,date)
+        for album in albums:
+            try:
+                album.image = imgs_data[get_record_name(album)]
+            except KeyError:
+                print("No image for album {}".format(album.album_name))
 
-
-        create_maxtrix(4,"GIF", [i.image_path + ".png"
-                                 for i in albums if i.image_path + ".png" in os.listdir("GIF")],
+        create_maxtrix(4, "GIF", [album for album in albums if album.image],
                        date_key=date)
-
-
 
     create_gif()
 
