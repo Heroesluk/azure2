@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from gif_creator import get_img_links_manually, get_record_name
-from gif_creator import AlbumFixed
+from gif_creator import Album
 
 
 example_album_data =  {
@@ -25,6 +25,6 @@ class Test(TestCase):
 
 
     def test_get_record_name(self):
-        album = AlbumFixed(example_album_data)
+        album = Album(example_album_data)
 
         self.assertEqual(get_record_name(album),"Tyler, the Creator_Flower Boy")
