@@ -150,17 +150,11 @@ def create_maxtrix(matrix_size, path, albums, date_key=None):
     return new_image
 
 
-#create gif with albumgrid images sorted by date
+# create gif with albumgrid images sorted by date
 def create_gif(images_dict):
-    paths = list(sorted(["GIF/{}".format(i) for i in os.listdir("GIF") if "mosaic" in i]))
-    fp_out = "image.gif"
-    if fp_out in os.listdir():
-        os.remove(fp_out)
-
     imgs: List[Image.Image] = list(images_dict.values())
 
     imgs[0].save("GIF/tak.gif", save_all=True, append_images=imgs[1:], optimize=False, loop=0, duration=400)
-
 
 
 deltas = {"week": relativedelta(weeks=+1), "month": relativedelta(months=+1), "3month": relativedelta(months=+3),
@@ -273,14 +267,14 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: da
                 print("No image for album {}".format(album.album_name))
 
         temp = create_maxtrix(4, "GIF", [album for album in albums if album.image],
-                       date_key=date)
+                              date_key=date)
 
         matrixes[date]: Dict[datetime, Image.Image] = temp
 
     create_gif(matrixes)
 
 
-gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022, 12, 1)
+# gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022, 12, 1)
 
 # cProfile.run('gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022,12,1)')
 # try to further optimize it
@@ -289,4 +283,4 @@ gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022, 12, 1)
 # deploy as docker image on heroku
 
 
-print(len(os.listdir("GIF")))
+# print(len(os.listdir("GIF")))
