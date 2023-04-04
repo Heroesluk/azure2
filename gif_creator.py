@@ -147,18 +147,20 @@ def create_maxtrix(matrix_size, path, albums, date_key=None):
 
     new_image.save("{}/mosaic_{}.jpg".format(path, date_key), "JPEG")
 
+    return new_image
 
-def create_gif():
+
+#create gif with albumgrid images sorted by date
+def create_gif(images_dict):
     paths = list(sorted(["GIF/{}".format(i) for i in os.listdir("GIF") if "mosaic" in i]))
     fp_out = "image.gif"
     if fp_out in os.listdir():
         os.remove(fp_out)
 
-    images = []
-    for file_name in paths:
-        images.append(imageio.imread(file_name))
+    imgs: List[Image.Image] = list(images_dict.values())
 
-    imageio.mimsave('static/movie.gif', images, fps=1)
+    imgs[0].save("GIF/tak.gif", save_all=True, append_images=imgs[1:], optimize=False, loop=0, duration=400)
+
 
 
 deltas = {"week": relativedelta(weeks=+1), "month": relativedelta(months=+1), "3month": relativedelta(months=+3),
@@ -261,6 +263,7 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: da
 
     # imgs = [i for i in os.listdir("GIF")]
 
+    matrixes = {}
     for date in sorted(top_albums_per_timeperiod.keys()):
         albums: List[AlbumFixed] = top_albums_per_timeperiod[date]
         for album in albums:
@@ -269,10 +272,12 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: da
             except KeyError:
                 print("No image for album {}".format(album.album_name))
 
-        create_maxtrix(4, "GIF", [album for album in albums if album.image],
+        temp = create_maxtrix(4, "GIF", [album for album in albums if album.image],
                        date_key=date)
 
-    create_gif()
+        matrixes[date]: Dict[datetime, Image.Image] = temp
+
+    create_gif(matrixes)
 
 
 gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022, 12, 1)
