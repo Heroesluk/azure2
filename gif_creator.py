@@ -58,67 +58,6 @@ class AlbumFixed():
         self.image_path = get_record_name(self)
 
 
-
-
-class Album():
-    def __init__(self, data, rank_context=None):
-        self.artist = data['artist']['#text']
-        self.album_name = data['name']
-        self.url = data['url']
-
-        self.rank = int(data["@attr"]['rank'])
-        self.play_count = int(data['playcount'])
-
-        self.image = None
-        self.image_path = None
-        self.tags = []
-
-    def print_out(self):
-        print("{}. {} by {} played {} times".format(self.rank, self.album_name, self.artist, self.play_count))
-
-    def load_more_metadata(self, cache: dict):
-        if self.url in cache.keys():
-            try:
-                self.image = cache[self.url]['image'][3]['#text']
-
-            except KeyError:
-                print("Couldn't find image for {} in cache, running request for image".format(self.album_name))
-
-        else:
-            print("Getting request")
-            data = requests.get(
-                "http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=d6e02ae58fcf6daaea788ce99c879f9c&artist={}&album={}&format=json".format(
-                    self.artist, self.album_name)).json()
-            #
-            # for tag in data['album']['tags']['tag']:
-            #     self.tags.append(tag['name'])
-            try:
-                self.image = data['album']['image'][3]['#text']
-            except KeyError:
-                print("Couldn't find image for {} with request".format(self.album_name))
-
-        if self.image:
-            self.download_image()
-
-    def download_image(self):
-        global files
-
-        file_name = convert_last_album_cover_link_to_id(self.image)
-
-        if file_name in files:
-            self.image_path = file_name
-        else:
-            if ("GIF" not in os.listdir()):
-                os.mkdir("GIF")
-
-            with open("GIF/{}.jpg".format(file_name), 'wb') as f:
-                data_img = requests.get(self.image).content
-                f.write(data_img)
-
-            files.append(file_name)
-            self.image_path = file_name
-
-
 # in a format of {
 #         'artist': {
 #           'mbid': 'f6beac20-5dfe-4d1f-ae02-0b0a740aafd6',
@@ -133,23 +72,6 @@ class Album():
 #         'playcount': '345'
 #       }
 # returns list of most listened album in the selected time period
-def get_top_albums(start_date: int, end_date: int, top: int = 1000) -> List[Album]:
-    data = requests.get(
-        "http://ws.audioscrobbler.com/2.0/?method=user.getweeklyalbumchart&user=heroesluk&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&from={}&to={}".format(
-            start_date, end_date))
-
-    data = data.json()
-    albums = []
-    try:
-        for i in (data["weeklyalbumchart"]["album"]):
-            albums.append(Album(i))
-
-            if len(albums) > top:
-                return albums
-    except KeyError:
-        print("Couldn't get link for {}".format(start_date))
-
-    return albums
 
 
 def get_top_albums_fixed(data: Dict) -> List[AlbumFixed]:
@@ -183,34 +105,6 @@ def prepare_top_albums_links(start_date: datetime, time_delta: relativedelta, li
     # gets dict of favorite albums per specified time period
 
 
-# i.e {month1:[Album1, Album2], month2:[Album4, Album1]} etc
-# def get_list_of_fav_artists(start_date: datetime, time_delta: relativedelta, matrix_size: int, end_date=datetime.now()):
-#     album_tops = {}
-#     cache = top_albums_dict()
-#
-#     while start_date < end_date:
-#         albums = get_top_albums(int(start_date.timestamp()), int((start_date + time_delta).timestamp()),
-#                                 matrix_size * matrix_size)
-#         print("Top for: {}".format(start_date))
-#
-#         album_tops[start_date] = []
-#         for album in albums:
-#             album.load_more_metadata(cache)
-#             album.print_out()
-#             # append only if image exists
-#             if album.image:
-#                 album_tops[start_date].append(album)
-#
-#         start_date += time_delta
-#         print("\n" * 3)
-#
-#     return album_tops
-
-
-# gets dict of favorite albums per specified time period
-# i.e {month1:[Album1, Album2], month2:[Album4, Album1]} etc
-
-
 def fav_albums_per_timeperiod_json(start_date: datetime, time_delta: relativedelta, album_limit: int) -> Dict[
     datetime, Dict]:
     album_tops = {}
@@ -233,7 +127,7 @@ def fav_albums_per_timeperiod_json(start_date: datetime, time_delta: relativedel
 
 def create_maxtrix(matrix_size, path, album_file_names, date_key=None):
     # assume all images are same size
-    albums = [Image.open('{}/{}.jpg'.format(path, i)) for i in album_file_names]
+    albums = [Image.open('{}/{}'.format(path, i)) for i in album_file_names]
     album_size = albums[0].size[0]
     new_image = Image.new('RGB', (matrix_size * album_size, matrix_size * album_size), (250, 250, 250))
 
@@ -298,20 +192,27 @@ def get_required_images_links(_top_albums_per_timeperiod: Dict[datetime, List[Al
 def download_batch_imgs(links: Dict[str, str]):
     session = FuturesSession(max_workers=20)
 
+    skipped = 0
     futures = []
     for record, link in links.items():
-        future = session.get(link)
-        future.name = record
-        futures.append(future)
+        if len(link)>0:
+            future = session.get(link)
+            future.name = record
+            futures.append(future)
 
     futures_dict = {}
     for future in as_completed(futures):
-        resp = future.result()
-        if (resp):
-            with open('GIF/{}.png'.format(future.name), 'wb') as f:
-                f.write(resp.content)
-        else:
-            print("couldnt download {}".format(future.name))
+        try:
+            resp = future.result()
+            if resp:
+                with open('GIF/{}.png'.format(future.name), 'wb') as f:
+                    f.write(resp.content)
+            else:
+                print("couldnt download {}".format(future.name))
+        except requests.exceptions.MissingSchema:
+            print(future, future.name)
+
+
 
 
 # album is in format of artist_albumname
@@ -341,27 +242,30 @@ def get_img_links_manually(albums: List[str]) -> Dict[str, str]:
 
 def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: datetime = None):
     time_delta = deltas[delta]
-    top_albums_per_timeperiod_json = fav_albums_per_timeperiod_json(start_date, time_delta, 17)
+    top_albums_per_timeperiod_json = fav_albums_per_timeperiod_json(start_date, time_delta, 18)
     top_albums_per_timeperiod = {}
     for date, _json in top_albums_per_timeperiod_json.items():
         top_albums_per_timeperiod[date] = get_top_albums_fixed(_json)
 
     links = get_required_images_links(top_albums_per_timeperiod)
-    download_batch_imgs(links)
+    # download_batch_imgs(links)
 
     imgs = [i for i in os.listdir("GIF")]
-    for date, albums in top_albums_per_timeperiod.items():
-        for album in albums:
-            if album.image_path + ".png" not in imgs:
-                print(album.album_name, album.image_path)
 
 
-    # for date, albums_per_date in data.items():
-    #     albums = data[date]
-    #     album_file_names = [i.image_path for i in albums]
-    #     create_maxtrix(matrix_size, 'GIF', album_file_names, date.strftime("%Y-%m"))
-    #
-    # create_gif()
+
+    for date in sorted(top_albums_per_timeperiod.keys()):
+        albums: List[AlbumFixed] = top_albums_per_timeperiod[date]
+        print("\n"*2,date)
+
+
+        create_maxtrix(4,"GIF", [i.image_path + ".png"
+                                 for i in albums if i.image_path + ".png" in os.listdir("GIF")],
+                       date_key=date)
+
+
+
+    create_gif()
 
 
 gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022, 12, 1)
