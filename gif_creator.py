@@ -238,15 +238,8 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: da
 
         matrixes[date]: Dict[datetime, Image.Image] = temp
 
-    create_gif(matrixes).show()
-
-gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022, 12, 1)
-
-# cProfile.run('gif_creator(datetime(2022, 6, 1), "month", 4), datetime(2022,12,1)')
-# try to further optimize it
-# add date banner
-# flask app instead of script
-# deploy as docker image on heroku
+    create_gif(matrixes)
 
 
-# print(len(os.listdir("GIF")))
+gif_creator(datetime(2021, 6, 1), "month", 4), datetime(2022, 12, 1)
+
