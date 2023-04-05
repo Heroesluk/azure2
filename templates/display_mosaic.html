@@ -1,0 +1,14 @@
+{# templates/display_mosaic.html #}
+
+{% extends "base.html" %}
+{% block content %}
+
+    <img src="/static/{{ file_name }}.gif">
+    <div id="wrapper">
+        <div class="go_back_button">
+            <a href="{{ url_for("mosaic") }}">back</a>
+        </div>
+
+    </div>
+
+{% endblock content %}

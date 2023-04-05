@@ -1,27 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{# templates/bubble_select.html #}
 
-<form action="#" method="post">
-    <label for="nickname">Select your lastfm nickname</label>
-    <input type="text" name="nickname">
-    <label for="number">Select number of records: </label>
-    <input type="number" id="records_number" name="records_number"
-           min="10" max="150">
-    <label for="record_type">Select whether you want to create bubble from top albums, or top artists</label>
-    <select name="record_type">
-        <option value="artist">artists</option>
-        <option value="album">albums</option>
-    </select>
+{% extends "base.html" %}
+{% block content %}
+    <div class="topinfo">
+        <h1><b>Last.fm</b> toolbox</h1>
+        <h2>Lets terrorize last.fm api together!
+            What's the point in listening to music if you can't bother
+            others with your cool charts
+            They don't care about mosaic? How about bubble-chart then?</h2>
+    </div>
 
-    <input type="submit">
+    <form action="#" method="post">
+        <div class="vertical_container" id="bubble_select_container">
+            <input id="input_name" type="text" name="nickname" placeholder="Select your lastfm nickname" required>
+            <input id="input_records" type="number" name="records_number" placeholder="How many records do you want
+ to include"
+                   min="10" max="150" required>
+            <div class="vertical_form">
+                <label for="record_type">Select whether you want to create bubble from top albums, or top
+                    artists</label>
+                <select id="record_type" name="record_type">
+                    <option value="album">albums</option>
+                    <option value="artist">artists</option>
+                </select>
+            </div>
 
 
-</form>
+            <input class="submit_btn" type="submit">
 
-</body>
-</html>
+        </div>
+
+
+    </form>
+{% endblock content %}
+
+
+

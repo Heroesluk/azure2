@@ -1,11 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<img src="{{ url_for('static', filename='bubble.png') }}" />
+{# templates/display_results.html #}
 
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+    <div>
+        <img id="results_background" src="/static/{{ file_name }}.png">
+    </div>
+
+    <form action="#" method="post">
+        <label> change background color of the bubble chart</label>
+        <input id="color_picker" type="color" name="color">
+    </form>
+
+    <div id="wrapper">
+        <div class="go_back_button">
+            <a href="{{ url_for("mosaic") }}">back</a>
+        </div>
+
+    </div>
+
+
+
+{% endblock content %}
