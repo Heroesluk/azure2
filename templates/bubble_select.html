@@ -11,16 +11,20 @@
     </div>
 
     <form action="#" method="post">
-        <div class="form_flex">
+        <div class="vertical_container" id="bubble_select_container">
             <input id="input_name" type="text" name="nickname" placeholder="Select your lastfm nickname" required>
             <input id="input_records" type="number" name="records_number" placeholder="How many records do you want
  to include"
                    min="10" max="150" required>
-            <label for="record_type">Select whether you want to create bubble from top albums, or top artists</label>
-            <select id="record_type" name="record_type">
-                <option value="album">albums</option>
-                <option value="artist">artists</option>
-            </select>java onclick send request
+            <div class="vertical_form">
+                <label for="record_type">Select whether you want to create bubble from top albums, or top
+                    artists</label>
+                <select id="record_type" name="record_type">
+                    <option value="album">albums</option>
+                    <option value="artist">artists</option>
+                </select>
+            </div>
+
 
             <input class="submit_btn" type="submit">
 

@@ -64,7 +64,7 @@ def mosaic():
         print(date_str, time_delta, matrix_size,start_date, "DZIALA????")
 
         file_name = uuid.uuid1()
-        gif_creator(start_date, time_delta, int(matrix_size), str(file_name))
+        gif_creator(start_date, time_delta, int(matrix_size), str(file_name),"IDieScreaming")
 
         return redirect(url_for("display_mosaic", file_name=file_name))
 

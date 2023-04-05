@@ -132,7 +132,7 @@ h1, h2, h3, h4 {
 
 }
 
-::placeholder { /* Most modern browsers support this now. */
+::placeholder, input,select { /* Most modern browsers support this now. */
     color: white;
     opacity: 1;
 }
@@ -156,13 +156,7 @@ input[type=submit] {
 }
 
 
-#input_name {
-    width: 35%;
-}
 
-#input_records {
-    width: 35%;
-}
 
 .vertical_form {
     display: flex;
@@ -202,4 +196,8 @@ input[type=submit] {
 
 #info{
     font-size: 1.5rem;
+}
+
+#bubble_select_container{
+    width: 70%;
 }

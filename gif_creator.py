@@ -47,12 +47,12 @@ def get_top_albums_list(data: Dict) -> List[Album]:
 # http://ws.audioscrobbler.com/2.0/?
 # method=user.getweeklyalbumchart&user={usr}&api_key={key}&format=json&from={}&to={}
 def prepare_timeperiod_album_requests(start_date: datetime, time_delta: relativedelta,
-                                      limit: int, end_date=datetime.now()) -> Dict[datetime, str]:
+                                      limit: int, username: str, end_date=datetime.now()) -> Dict[datetime, str]:
     links = {}
     while start_date < end_date:
-        link = "http://ws.audioscrobbler.com/2.0/?method=user.getweeklyalbumchart&user=heroesluk" \
+        link = "http://ws.audioscrobbler.com/2.0/?method=user.getweeklyalbumchart&user={}" \
                "&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&from={}&to={}&limit={}". \
-            format(int(start_date.timestamp()), int((start_date + time_delta).timestamp()), limit)
+            format(username, int(start_date.timestamp()), int((start_date + time_delta).timestamp()), limit)
 
         start_date += time_delta
 
@@ -64,8 +64,8 @@ def prepare_timeperiod_album_requests(start_date: datetime, time_delta: relative
 # gets dict of favorite albums per specified time as json
 # using https://www.last.fm/api/show/user.getWeeklyAlbumChart
 def fav_albums_per_timeperiod_json(start_date: datetime, time_delta: relativedelta,
-                                   album_limit: int, end_date: datetime = None) -> Dict[datetime, Dict]:
-    links = prepare_timeperiod_album_requests(start_date, time_delta, album_limit)
+                                   album_limit: int, username: str, end_date: datetime = None) -> Dict[datetime, Dict]:
+    links = prepare_timeperiod_album_requests(start_date, time_delta, album_limit, username)
     session = FuturesSession(max_workers=20)
     futures = []
     for date, link in links.items():
@@ -100,9 +100,6 @@ def create_maxtrix(matrix_size, path, albums, date_key=None):
     return new_image
 
 
-
-
-
 def get_record_name(album: Album) -> str:
     return sanitize_filename(album.artist + "_" + album.album_name)
 
@@ -110,10 +107,10 @@ def get_record_name(album: Album) -> str:
 # since lastfm weeklychart doesn't give us links
 # to album covers ( or rather, it gives empty fields )
 # we have to cheat a bit
-def top_albums_images():
+def top_albums_images(username: str):
     data = requests.get(
         "http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&use"
-        "r=Heroesluk&limit=500&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json").json()
+        "r={}&limit=500&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json".format(username)).json()
 
     return {sanitize_filename(i['artist']['name'] + "_" + i['name']): i['image'][3]['#text'] for i in
             data['topalbums']['album']}
@@ -123,9 +120,9 @@ def top_albums_images():
 # listened to albums, if needed album is not in it, only then request it manually
 # there's a chance for bigger gifs, with longer time periods, extending the cache from 500 to more albums
 # could improve performance
-def get_required_images_links(_top_albums_per_timeperiod: Dict[datetime, List[Album]]) -> Dict[str, str]:
+def get_required_images_links(_top_albums_per_timeperiod: Dict[datetime, List[Album]], username: str) -> Dict[str, str]:
     records = set()
-    cache = top_albums_images()
+    cache = top_albums_images(username)
     links_to_manually_download = []
 
     for date, albums in _top_albums_per_timeperiod.items():
@@ -178,6 +175,9 @@ def get_img_links_manually(albums: List[str]) -> Dict[str, str]:
     # record is in format of artistName_albumName
     for record in albums:
         artist, album_name = record.split('_')
+        print("http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_"
+              "key=d6e02ae58fcf6daaea788ce99c879f9c&artist={}&album={}&format=json".format(artist,
+                                                                                           album_name))
         links[record] = ("http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_"
                          "key=d6e02ae58fcf6daaea788ce99c879f9c&artist={}&album={}&format=json".format(artist,
                                                                                                       album_name))
@@ -193,8 +193,10 @@ def get_img_links_manually(albums: List[str]) -> Dict[str, str]:
     futures_dict = {}
     for future in as_completed(futures):
         temp = future.result().json()
-        futures_dict[future.name] = temp['album']['image'][3]['#text']
-
+        try:
+            futures_dict[future.name] = temp['album']['image'][3]['#text']
+        except KeyError:
+            print("album not found ".format(future.name))
     return futures_dict
 
 
@@ -202,19 +204,21 @@ def get_img_links_manually(albums: List[str]) -> Dict[str, str]:
 def create_gif(images_dict, file_name):
     imgs: List[Image.Image] = list(images_dict.values())
 
-    imgs[0].save("static/{}.gif".format(file_name), save_all=True, append_images=imgs[1:], optimize=False, loop=0, duration=1000)
+    imgs[0].save("static/{}.gif".format(file_name), save_all=True, append_images=imgs[1:], optimize=False, loop=0,
+                 duration=1000)
 
     return imgs[0]
 
 
-def gif_creator(start_date: datetime, delta: str, matrix_size: int, file_name: str, end_date: datetime = None):
+def gif_creator(start_date: datetime, delta: str, matrix_size: int, file_name: str, username: str,
+                end_date: datetime = None):
     deltas = {"week": relativedelta(weeks=+1), "month": relativedelta(months=+1), "3month": relativedelta(months=+3),
               "6month": relativedelta(months=+6), "year": relativedelta(months=+12)}
     time_delta = deltas[delta]
 
     top_albums_per_timeperiod_json = fav_albums_per_timeperiod_json(start_date,
                                                                     time_delta,
-                                                                    (matrix_size * matrix_size) + 2)
+                                                                    (matrix_size * matrix_size) + 2, username)
 
     # create dict where key is date, and value is list of Album instances
     # corresponding to most listened to albums for specified time period
@@ -223,7 +227,7 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, file_name: s
         top_albums_per_timeperiod[date] = get_top_albums_list(_json)
 
     # extract required links and download album covers to memory
-    links = get_required_images_links(top_albums_per_timeperiod)
+    links = get_required_images_links(top_albums_per_timeperiod, username)
     imgs_data = download_batch_imgs(links)
 
     # prepare album mosaics for every timeperiod
@@ -242,6 +246,3 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, file_name: s
         matrixes[date]: Dict[datetime, Image.Image] = temp
 
     return create_gif(matrixes, file_name)
-
-
-
