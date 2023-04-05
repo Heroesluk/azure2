@@ -24,15 +24,15 @@
             <div class="vertical_form">
                 <label for="matrix_size">Select matrix size: </label>
                 <select name="matrix_size">
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
+                    <option value="3">3x3</option>
+                    <option value="4">4x4</option>
+                    <option value="5">5x5</option>
                 </select>
 
             </div>
 
             <div class="vertical_form">
-                <label for="time_delta">Select time delta: </label>
+                <label for="time_delta">Frame for every: </label>
                 <select name="time_delta">
                     <option value="week">week</option>
                     <option value="month">month</option>
@@ -54,5 +54,7 @@
         Depending on the selected values, it can take anywhere <br>
         between 15 and 90 seconds to complete generation of mosaic.
     </div>
+
+
 
 {% endblock content %}

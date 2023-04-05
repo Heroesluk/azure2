@@ -2,15 +2,22 @@
 
 {% extends "base.html" %}
 {% block content %}
-    <div id="results_background">
-        <img src="/static/{{ file_name }}.png">
+    <div>
+        <img id="results_background" src="/static/{{ file_name }}.png">
     </div>
 
     <form action="#" method="post">
-        <input id="color_picker" type="color" name="color">
-        <input type="text" name="dziala">
         <label> change background color of the bubble chart</label>
-        <input type="submit">Download chart</input>
+        <input id="color_picker" type="color" name="color">
     </form>
+
+    <div id="wrapper">
+        <div class="go_back_button">
+            <a href="{{ url_for("mosaic") }}">back</a>
+        </div>
+
+    </div>
+
+
 
 {% endblock content %}

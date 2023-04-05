@@ -16,12 +16,10 @@ class ConvertToCarthesian:
     The center of the image is considered (0, 0). The corners are (-1, 1), (1, 1), (1, -1) and (-1, -1)
     """
 
-    # TODO: Use this Canvas in Pointillizer
-
     def __init__(self, size=(800, 800)):
         self.width, self.height = size
 
-    def give_circle_coords(self, pos, r: int, color):
+    def give_circle_coords(self, pos, r: int):
         x, y = pos
         left = self._rel_x_to_abs_x(x) - r
         right = self._rel_x_to_abs_x(x) + r
@@ -145,6 +143,9 @@ def image_to_circle(img: Image):
 
 
 def main(bubble_type: str, size: int, nickname: str, file_name: str):
+    img_size = 1000
+    R = int(img_size / 2)
+
     if bubble_type == 'album':
         artist_data = get_top_listened_albums_with_img_links(nickname, size)
     elif bubble_type == 'artist':
@@ -162,14 +163,13 @@ def main(bubble_type: str, size: int, nickname: str, file_name: str):
     data = [{'id': k, 'datum': pow(float(v[0]), 1.5)} for k, v in artist_data.items()]
     circles = circ.circlify(data, show_enclosure=False)
 
-    im = Image.new('RGBA', (800, 800), (255, 255, 255,0))
+    im = Image.new('RGBA', (img_size, img_size), (255, 255, 255, 0))
 
-    cn: ConvertToCarthesian = ConvertToCarthesian(size=(800, 800))
+    cn: ConvertToCarthesian = ConvertToCarthesian(size=(img_size, img_size))
 
     for circle in circles:
         x, y, r = circle.x, circle.y, circle.r
-        l, r, u, low = cn.give_circle_coords((x, y), r * 400, (
-            random.randrange(1, 255), random.randrange(1, 255), random.randrange(1, 255)))
+        l, r, u, low = cn.give_circle_coords((x, y), r * R)
 
         name = circle.ex['id']
         try:
@@ -185,6 +185,9 @@ def main(bubble_type: str, size: int, nickname: str, file_name: str):
     im.save("static/{}.png".format(file_name))
 
 
-
 def download_with_color():
     pass
+
+# TODO: download_with_color
+# higher album pictures resolution ( but need to test this one whether it's fast enough )
+# higher picture resolution

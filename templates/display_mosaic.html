@@ -2,7 +2,13 @@
 
 {% extends "base.html" %}
 {% block content %}
-    <div ></div>
+
     <img src="/static/{{ file_name }}.gif">
+    <div id="wrapper">
+        <div class="go_back_button">
+            <a href="{{ url_for("mosaic") }}">back</a>
+        </div>
+
+    </div>
 
 {% endblock content %}

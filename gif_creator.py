@@ -246,3 +246,7 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, file_name: s
         matrixes[date]: Dict[datetime, Image.Image] = temp
 
     return create_gif(matrixes, file_name)
+
+
+# TODO: albums should remain in the same places
+# add end_date functionality
