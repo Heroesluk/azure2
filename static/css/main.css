@@ -135,6 +135,7 @@ h1, h2, h3, h4 {
 ::placeholder, input,select { /* Most modern browsers support this now. */
     color: white;
     opacity: 1;
+    text-align: center;
 }
 
 .form_flex input:focus {
@@ -200,4 +201,8 @@ input[type=submit] {
 
 #bubble_select_container{
     width: 70%;
+}
+
+#nickname{
+    width: 41%;
 }

@@ -51,20 +51,21 @@ def display_bubble():
 ############################################
 
 
-#TODO: app breaks on week type time input
+# TODO: app breaks on week type time input
 @app.route("/mosaic", methods=["GET", "POST"])
 def mosaic():
     if request.method == "POST":
         date_str = request.form["start_date"]
         matrix_size = request.form["matrix_size"]
         time_delta = request.form["time_delta"]
+        nickname = request.form["nickname"]
 
         start_date = datetime.strptime(date_str, "%Y-%m-%d")
 
-        print(date_str, time_delta, matrix_size,start_date, "DZIALA????")
-
         file_name = uuid.uuid1()
-        gif_creator(start_date, time_delta, int(matrix_size), str(file_name),"IDieScreaming")
+        if nickname != "":
+            gif_creator(start_date, time_delta,
+                        int(matrix_size), str(file_name), nickname)
 
         return redirect(url_for("display_mosaic", file_name=file_name))
 
