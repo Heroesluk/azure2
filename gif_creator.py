@@ -100,13 +100,7 @@ def create_maxtrix(matrix_size, path, albums, date_key=None):
     return new_image
 
 
-# create gif with albumgrid images sorted by date
-def create_gif(images_dict):
-    imgs: List[Image.Image] = list(images_dict.values())
 
-    imgs[0].save("GIF/tak.gif", save_all=True, append_images=imgs[1:], optimize=False, loop=0, duration=400)
-
-    return imgs[0]
 
 
 def get_record_name(album: Album) -> str:
@@ -204,7 +198,16 @@ def get_img_links_manually(albums: List[str]) -> Dict[str, str]:
     return futures_dict
 
 
-def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: datetime = None):
+# create gif with albumgrid images sorted by date
+def create_gif(images_dict, file_name):
+    imgs: List[Image.Image] = list(images_dict.values())
+
+    imgs[0].save("static/{}.gif".format(file_name), save_all=True, append_images=imgs[1:], optimize=False, loop=0, duration=400)
+
+    return imgs[0]
+
+
+def gif_creator(start_date: datetime, delta: str, matrix_size: int, file_name: str, end_date: datetime = None):
     deltas = {"week": relativedelta(weeks=+1), "month": relativedelta(months=+1), "3month": relativedelta(months=+3),
               "6month": relativedelta(months=+6), "year": relativedelta(months=+12)}
     time_delta = deltas[delta]
@@ -233,13 +236,12 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, end_date: da
             except KeyError:
                 print("No image for album {}".format(album.album_name))
 
-        temp = create_maxtrix(4, "GIF", [album for album in albums if album.image],
+        temp = create_maxtrix(matrix_size, "GIF", [album for album in albums if album.image],
                               date_key=date)
 
         matrixes[date]: Dict[datetime, Image.Image] = temp
 
-    create_gif(matrixes)
+    return create_gif(matrixes, file_name)
 
 
-gif_creator(datetime(2021, 6, 1), "month", 4), datetime(2022, 12, 1)
 

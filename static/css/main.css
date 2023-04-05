@@ -47,6 +47,8 @@ body {
     flex-direction: column;
     width: 100%;
     margin-right: 500px;
+    margin-top: 5%;
+    gap: 2rem;
 
 
 }
@@ -83,9 +85,6 @@ body {
 
 }
 
-.topinfo {
-    margin-bottom: 2rem;
-}
 
 .topinfo > * {
     margin-bottom: 0.3rem;
@@ -122,16 +121,9 @@ h1, h2, h3, h4 {
     color: #AAA;
 }
 
-.form_flex {
-    align-items: flex-start;
-    margin-top: 5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
 
-.form_flex input,select {
-    border: 0;
+
+#start_date {
     background-color: tomato;
     box-shadow: none;
     outline: 0;
@@ -156,26 +148,54 @@ input[type=number]::-webkit-inner-spin-button {
 }
 
 input[type=number] {
-    -moz-appearance:textfield;
+    -moz-appearance: textfield;
 }
 
-input[type=submit]{
+input[type=submit] {
     background-color: tomato;
 }
 
 
-#input_name{
-    width: 35%;
-}
-#input_records{
+#input_name {
     width: 35%;
 }
 
-.vertical_form{
+#input_records {
+    width: 35%;
+}
+
+.vertical_form {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 
 }
-.vertical_container{
+
+.vertical_container {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    width: 35%;
+}
+
+.vertical_container label {
+    font-weight: bolder;
+    font-size: 1.3rem;
+}
+
+.vertical_container select, input {
+    border: 0;
+    background-color: tomato;
+    box-shadow: none;
+    outline: 0;
+    font-size: 1rem;
+    padding: 1rem 2rem 1rem 2rem;
+}
+#submitbt{
+    margin-left: 48%;
+}
+
+#info{
+    font-size: 1.2rem;
 }

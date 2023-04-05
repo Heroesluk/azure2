@@ -2,6 +2,9 @@
 
 {% extends "base.html" %}
 {% block content %}
+    <div class="topinfo">
+        <h1><b>Last.fm</b> toolbox</h1>
+    </div>
     <form action="#" method="post">
 
         <div class="vertical_container">
@@ -34,13 +37,16 @@
             </div>
 
             <div class="vertical_form">
-                <input class="submit_btn" type="submit">
+                <input id="submitbt" class="submit_btn" type="submit">
 
             </div>
 
         </div>
-
-
     </form>
+
+    <div id="info">
+        depending on the selected values, it can take anywhere <br>
+        between 15 and 90 seconds to complete generation of mosaic.
+    </div>
 
 {% endblock content %}
