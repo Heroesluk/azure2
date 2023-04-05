@@ -50,6 +50,8 @@ def display_bubble():
 ##########GIF CREATOR#######################
 ############################################
 
+
+#TODO: app breaks on week type time input
 @app.route("/mosaic", methods=["GET", "POST"])
 def mosaic():
     if request.method == "POST":
@@ -58,6 +60,8 @@ def mosaic():
         time_delta = request.form["time_delta"]
 
         start_date = datetime.strptime(date_str, "%Y-%m-%d")
+
+        print(date_str, time_delta, matrix_size,start_date, "DZIALA????")
 
         file_name = uuid.uuid1()
         gif_creator(start_date, time_delta, int(matrix_size), str(file_name))

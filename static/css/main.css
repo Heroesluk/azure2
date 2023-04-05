@@ -194,8 +194,12 @@ input[type=submit] {
 }
 #submitbt{
     margin-left: 48%;
+
+}
+#submitbt:focus{
+    background-color: crimson;
 }
 
 #info{
-    font-size: 1.2rem;
+    font-size: 1.5rem;
 }

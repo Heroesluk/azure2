@@ -202,7 +202,7 @@ def get_img_links_manually(albums: List[str]) -> Dict[str, str]:
 def create_gif(images_dict, file_name):
     imgs: List[Image.Image] = list(images_dict.values())
 
-    imgs[0].save("static/{}.gif".format(file_name), save_all=True, append_images=imgs[1:], optimize=False, loop=0, duration=400)
+    imgs[0].save("static/{}.gif".format(file_name), save_all=True, append_images=imgs[1:], optimize=False, loop=0, duration=1000)
 
     return imgs[0]
 
