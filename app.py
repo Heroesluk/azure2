@@ -88,3 +88,6 @@ def display_mosaic():
     file_name = request.args.get("file_name")
 
     return render_template("display_mosaic.html", file_name=file_name)
+
+
+#dynamically showing user the maximum size of mosaic gif

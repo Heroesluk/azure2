@@ -200,10 +200,10 @@ def get_img_links_manually(albums: List[str]) -> Dict[str, str]:
     futures_dict = {}
     for future in as_completed(futures):
         if future.result().ok:
-            temp = future.result().json()
             try:
+                temp = future.result().json()
                 futures_dict[future.name] = temp['album']['image'][3]['#text']
-            except KeyError:
+            except (KeyError,requests.exceptions.JSONDecodeError) as error:
                 print("album not found ".format(future.name))
 
     return futures_dict
