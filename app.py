@@ -36,9 +36,15 @@ def home():
 def bubbles():
     if request.method == "POST":
         file_name = uuid.uuid1()
-        bubble_type = request.form['record_type']
-        number_of_bubbles = request.form['records_number']
-        nickname = request.form['nickname']
+
+        if len(request.form.keys()) == 0:
+            bubble_type = "album"
+            number_of_bubbles = randrange(30,100)
+            nickname = choice(usernames)
+        else:
+            bubble_type = request.form['record_type']
+            number_of_bubbles = request.form['records_number']
+            nickname = request.form['nickname']
 
         if check_if_usr_exist(nickname):
             main(bubble_type, int(number_of_bubbles), nickname, str(file_name))
