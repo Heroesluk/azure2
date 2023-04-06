@@ -203,7 +203,7 @@ def get_img_links_manually(albums: List[str]) -> Dict[str, str]:
             try:
                 temp = future.result().json()
                 futures_dict[future.name] = temp['album']['image'][3]['#text']
-            except (KeyError,requests.exceptions.JSONDecodeError) as error:
+            except (KeyError, requests.exceptions.JSONDecodeError) as error:
                 print("album not found ".format(future.name))
 
     return futures_dict
@@ -249,10 +249,10 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, file_name: s
             except KeyError:
                 print("No image for album {}".format(album.album_name))
 
-        temp = create_maxtrix(matrix_size, "GIF", [album for album in albums if album.image],
-                              date_key=date)
-
-        matrixes[date]: Dict[datetime, Image.Image] = temp
+        if len(albums) >= matrix_size * matrix_size - 2:  # maximum empty fields avaible set to 2
+            temp = create_maxtrix(matrix_size, "GIF", [album for album in albums if album.image],
+                                  date_key=date)
+            matrixes[date]: Dict[datetime, Image.Image] = temp
 
     return create_gif(matrixes, file_name)
 

@@ -224,12 +224,12 @@ label {
 
 }
 
-a{
+.topnav a, .info a{
     text-decoration: none;
     color: tomato;
     font-weight: bold;
 }
-a:visited{
+.topnav a:active, .info a:active{
     color: tomato;
 }
 
