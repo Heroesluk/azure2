@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime
 
 import flask
+import requests
 from PIL.Image import Image
 from flask import Flask, render_template, request, redirect, url_for
 
@@ -10,6 +11,13 @@ from gif_creator import gif_creator
 
 app = Flask(__name__)
 from bubble import main
+
+
+def check_if_usr_exist(username: str):
+    data = requests.get("http://ws.audioscrobbler.com/2.0/?method=user.getinfo&user={}&api_key="
+                        "d6e02ae58fcf6daaea788ce99c879f9c&format=json".format(username))
+
+    return data.ok
 
 
 @app.route('/favicon.ico')
@@ -29,9 +37,10 @@ def bubbles():
         bubble_type = request.form['record_type']
         number_of_bubbles = request.form['records_number']
         nickname = request.form['nickname']
-        main(bubble_type, int(number_of_bubbles), nickname, str(file_name))
 
-        return redirect(url_for("display_bubble", file_name=file_name))
+        if check_if_usr_exist(nickname):
+            main(bubble_type, int(number_of_bubbles), nickname, str(file_name))
+            return redirect(url_for("display_bubble", file_name=file_name))
 
     return render_template("bubble_select.html")
 
@@ -63,15 +72,15 @@ def mosaic():
         start_date = datetime.strptime(date_str, "%Y-%m-%d")
 
         file_name = uuid.uuid1()
-        if nickname != "":
+        if check_if_usr_exist(nickname):
             gif_creator(start_date, time_delta,
-                        int(matrix_size), str(file_name), nickname)
+                        int(matrix_size), str(file_name),
+                        nickname)
 
-        return redirect(url_for("display_mosaic", file_name=file_name))
+            return redirect(url_for("display_mosaic", file_name=file_name))
 
-    else:
 
-        return render_template("mosaic.html")
+    return render_template("mosaic.html")
 
 
 @app.route("/display_mosaic", methods=["GET"])

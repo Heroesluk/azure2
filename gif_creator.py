@@ -1,4 +1,5 @@
 import cProfile
+import os
 from concurrent.futures import as_completed
 from pathvalidate import sanitize_filename
 
@@ -75,7 +76,8 @@ def fav_albums_per_timeperiod_json(start_date: datetime, time_delta: relativedel
 
     futures_dict = {}
     for future in as_completed(futures):
-        futures_dict[future.name] = future.result().json()
+        if future.result().ok:
+            futures_dict[future.name] = future.result().json()
 
     return futures_dict
 
@@ -95,12 +97,17 @@ def create_maxtrix(matrix_size, path, albums, date_key=None):
             except IndexError:
                 pass
 
+    if path not in os.listdir():
+        os.mkdir(path)
+
     new_image.save("{}/mosaic_{}.jpg".format(path, date_key), "JPEG")
 
     return new_image
 
 
 def get_record_name(album: Album) -> str:
+    album.artist = album.artist.replace("_", " ")
+    album.album_name = album.album_name.replace("_", " ")
     return sanitize_filename(album.artist + "_" + album.album_name)
 
 
@@ -192,11 +199,13 @@ def get_img_links_manually(albums: List[str]) -> Dict[str, str]:
 
     futures_dict = {}
     for future in as_completed(futures):
-        temp = future.result().json()
-        try:
-            futures_dict[future.name] = temp['album']['image'][3]['#text']
-        except KeyError:
-            print("album not found ".format(future.name))
+        if future.result().ok:
+            temp = future.result().json()
+            try:
+                futures_dict[future.name] = temp['album']['image'][3]['#text']
+            except KeyError:
+                print("album not found ".format(future.name))
+
     return futures_dict
 
 
@@ -246,7 +255,6 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, file_name: s
         matrixes[date]: Dict[datetime, Image.Image] = temp
 
     return create_gif(matrixes, file_name)
-
 
 # TODO: albums should remain in the same places
 # add end_date functionality
