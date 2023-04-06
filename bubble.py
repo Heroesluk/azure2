@@ -182,7 +182,6 @@ def main(bubble_type: str, size: int, nickname: str, file_name: str):
         except (FileNotFoundError, UnidentifiedImageError, ValueError):
             print(name)
 
-#rol
     im.save("static/{}.png".format(file_name))
 
 

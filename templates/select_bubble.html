@@ -1,13 +1,14 @@
-{# templates/bubble_select.html #}
+{# templates/select_bubble.html #}
 
 {% extends "base.html" %}
 {% block content %}
     <div class="topinfo">
         <h1><b>Last.fm</b> toolbox</h1>
-        <h2>Lets terrorize last.fm api together!
-            What's the point in listening to music if you can't bother
-            others with your cool charts
-            They don't care about mosaic? How about bubble-chart then?</h2>
+        <h3>Bubble Chart</h3>
+    </div>
+    <div class="info">
+        Create bubble-chart, where the number of your artist/album scrobbles defines size
+    of each bubble
     </div>
 
     <form action="#" method="post">
@@ -31,6 +32,15 @@
         </div>
 
 
+    </form>
+    <div class="info">
+        Depending on the selected values, it can take anywhere <br>
+        between 10 to 40 seconds to complete generation of bubble chart.
+    </div>
+
+    <div class="info">Not a lastfm user?<br> Generate bubble chart for a random user with random settings</div>
+    <form action="#" method="post">
+        <button id="random_button" type="submit">Try</button>
     </form>
 {% endblock content %}
 

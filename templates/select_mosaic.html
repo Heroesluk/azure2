@@ -1,29 +1,34 @@
-{# templates/mosaic.html #}
+{# templates/select_mosaic.html #}
 
 {% extends "base.html" %}
 {% block content %}
     <div class="topinfo">
         <h1><b>Last.fm</b> toolbox</h1>
+        <h3>GIF-Mosaic</h3>
+    </div>
+    <div class="info">
+        Create mosaic, that on every frame displays your
+        most listened to releases for selected span of weeks/months etc
     </div>
     <form action="#" method="post">
 
 
         <div class="vertical_container">
             <div class="vertical_form">
-                <label for="nickname">lastfm </label>
+                <label for="nickname">Lastfm: </label>
                 <input type="text" name="nickname"
-                       id="nickname" placeholder="nickname">
+                       id="nickname" placeholder="nickname" required>
             </div>
 
             <div class="vertical_form">
                 <label for="start_date">Select date: </label>
                 <input type="date" id="start_date" name="start_date"
-                       value="2022-01-01">
+                       value="2022-01-01" required>
 
             </div>
             <div class="vertical_form">
                 <label for="matrix_size">Select matrix size: </label>
-                <select name="matrix_size">
+                <select name="matrix_size" required>
                     <option value="3">3x3</option>
                     <option value="4">4x4</option>
                     <option value="5">5x5</option>
@@ -33,7 +38,7 @@
 
             <div class="vertical_form">
                 <label for="time_delta">Frame for every: </label>
-                <select name="time_delta">
+                <select name="time_delta" required>
                     <option value="week">week</option>
                     <option value="month">month</option>
                     <option value="3month">3 months</option>
@@ -50,10 +55,15 @@
         </div>
     </form>
 
-    <div id="info">
+    <div class="info">
         Depending on the selected values, it can take anywhere <br>
         between 15 and 90 seconds to complete generation of mosaic.
     </div>
+
+    <div class="info">Not a lastfm user?<br> Generate a mosaic for a random user with random settings</div>
+    <form action="#" method="post">
+        <button id="random_button" type="submit">Try</button>
+    </form>
 
 
 
