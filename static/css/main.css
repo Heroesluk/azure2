@@ -77,6 +77,7 @@ body {
     font-size: 1.5rem;
     margin-top: 1rem;
     margin-bottom: 1rem;
+    align-items: center;
 }
 
 
@@ -132,7 +133,7 @@ h1, h2, h3, h4 {
 
 }
 
-::placeholder, input, select { /* Most modern browsers support this now. */
+::placeholder, input, select, #random_button { /* Most modern browsers support this now. */
     color: white;
     opacity: 1;
     text-align: center;
@@ -177,7 +178,7 @@ label {
     font-size: 1.3rem;
 }
 
-.vertical_container select, .vertical_container input {
+.vertical_container select, .vertical_container input, #random_button {
     border: 0;
     background-color: tomato;
     box-shadow: none;
@@ -195,7 +196,8 @@ label {
     background-color: crimson;
 }
 
-#info {
+.info {
+    font-style: italic;
     font-size: 1.5rem;
 }
 
@@ -230,5 +232,12 @@ label {
     color: white;
 }
 .go_back_button:hover{
+    background-color: crimson;
+}
+
+#random_button{
+    width: 18%;
+}
+#random_button:hover{
     background-color: crimson;
 }

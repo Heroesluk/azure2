@@ -1,7 +1,7 @@
 import os
 import uuid
 from datetime import datetime
-
+from random import randrange, choice
 import flask
 import requests
 from PIL.Image import Image
@@ -12,6 +12,8 @@ from gif_creator import gif_creator
 app = Flask(__name__)
 from bubble import main
 
+
+usernames = ("heroesluk", "Ryryk", "Zajii","kaasi06","PixelSun","SniperWolf92","aroquis","calikasan","skvce","Ididealism")
 
 def check_if_usr_exist(username: str):
     data = requests.get("http://ws.audioscrobbler.com/2.0/?method=user.getinfo&user={}&api_key="
@@ -42,7 +44,7 @@ def bubbles():
             main(bubble_type, int(number_of_bubbles), nickname, str(file_name))
             return redirect(url_for("display_bubble", file_name=file_name))
 
-    return render_template("bubble_select.html")
+    return render_template("select_bubble.html")
 
 
 @app.route("/display_bubble", methods=["GET", "POST"])
@@ -52,7 +54,7 @@ def display_bubble():
             print(request.form['color'])
 
     filename = request.args.get("file_name")
-    return render_template("display_results.html", file_name=filename)
+    return render_template("display_bubble.html", file_name=filename)
 
 
 ############################################
@@ -64,10 +66,16 @@ def display_bubble():
 @app.route("/mosaic", methods=["GET", "POST"])
 def mosaic():
     if request.method == "POST":
-        date_str = request.form["start_date"]
-        matrix_size = request.form["matrix_size"]
-        time_delta = request.form["time_delta"]
-        nickname = request.form["nickname"]
+        if len(request.form.keys()) == 0:
+            date_str = "2022-01-01"
+            matrix_size = randrange(3, 6)
+            time_delta = "3month"
+            nickname = choice(usernames)
+        else:
+            date_str = request.form["start_date"]
+            matrix_size = request.form["matrix_size"]
+            time_delta = request.form["time_delta"]
+            nickname = request.form["nickname"]
 
         start_date = datetime.strptime(date_str, "%Y-%m-%d")
 
@@ -79,8 +87,7 @@ def mosaic():
 
             return redirect(url_for("display_mosaic", file_name=file_name))
 
-
-    return render_template("mosaic.html")
+    return render_template("select_mosaic.html")
 
 
 @app.route("/display_mosaic", methods=["GET"])
@@ -89,5 +96,4 @@ def display_mosaic():
 
     return render_template("display_mosaic.html", file_name=file_name)
 
-
-#dynamically showing user the maximum size of mosaic gif
+# dynamically showing user the maximum size of mosaic gif
