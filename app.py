@@ -103,3 +103,18 @@ def display_mosaic():
     return render_template("display_mosaic.html", file_name=file_name)
 
 # dynamically showing user the maximum size of mosaic gif
+@app.route("/about", methods=["GET"])
+def about():
+
+    return render_template("about me.html")
+
+
+@app.route("/contact", methods=["GET"])
+def contact():
+
+    return render_template("contact_me.html")
+
+
+@app.route("/privacy", methods=["GET"])
+def privacy():
+    return render_template("privacy_note.html")
