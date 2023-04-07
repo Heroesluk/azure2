@@ -6,7 +6,7 @@ lastfm scrobbling feature, and public lastfm api to create visualizations of use
 ### Tools:
 
 ##### GIF-Mosaic
-![alt text](https://github.com/Heroesluk/azure2/blob/main/static/movie.gif "Logo Title Text 1" | width=400)
+![alt text](https://github.com/Heroesluk/azure2/blob/main/static/movie.gif | width=400)
 
 ## Okay but what is LastFM in the first place?
 
