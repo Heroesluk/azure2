@@ -46,8 +46,10 @@ def bubbles():
             number_of_bubbles = request.form['records_number']
             nickname = request.form['nickname']
 
+        file_name = "static/" + str(file_name)
+
         if check_if_usr_exist(nickname):
-            main(bubble_type, int(number_of_bubbles), nickname, str(file_name))
+            main(bubble_type, int(number_of_bubbles), nickname, file_name)
             return redirect(url_for("display_bubble", file_name=file_name))
 
     return render_template("select_bubble.html")
