@@ -13,13 +13,15 @@ app = Flask(__name__)
 from bubble import main
 
 
-usernames = ("heroesluk", "Ryryk", "Zajii","kaasi06","PixelSun","SniperWolf92","aroquis","calikasan","skvce","Ididealism")
+def clean_up():
+    files = os.listdir("static/results")
 
-def check_if_usr_exist(username: str):
-    data = requests.get("http://ws.audioscrobbler.com/2.0/?method=user.getinfo&user={}&api_key="
-                        "d6e02ae58fcf6daaea788ce99c879f9c&format=json".format(username))
+    for file in files:
+        os.remove("static/results/" + file)
 
-    return data.ok
+
+usernames = (
+    "heroesluk", "Ryryk", "Zajii", "kaasi06", "PixelSun", "SniperWolf92", "aroquis", "calikasan", "skvce", "Ididealism")
 
 
 @app.route('/favicon.ico')
@@ -39,17 +41,15 @@ def bubbles():
 
         if len(request.form.keys()) == 0:
             bubble_type = "album"
-            number_of_bubbles = randrange(30,100)
+            number_of_bubbles = randrange(30, 100)
             nickname = choice(usernames)
         else:
             bubble_type = request.form['record_type']
             number_of_bubbles = request.form['records_number']
             nickname = request.form['nickname']
 
-
-        if check_if_usr_exist(nickname):
-            if main(bubble_type, int(number_of_bubbles), nickname, "static/" + str(file_name)):
-                return redirect(url_for("display_bubble", file_name=str(file_name)))
+        if main(bubble_type, int(number_of_bubbles), nickname, "static/" + str(file_name)):
+            return redirect(url_for("display_bubble", file_name=str(file_name)))
 
     return render_template("select_bubble.html")
 
@@ -69,7 +69,6 @@ def display_bubble():
 ############################################
 
 
-# TODO: app breaks on week type time input
 @app.route("/mosaic", methods=["GET", "POST"])
 def mosaic():
     if request.method == "POST":
@@ -83,14 +82,13 @@ def mosaic():
             matrix_size = request.form["matrix_size"]
             time_delta = request.form["time_delta"]
             nickname = request.form["nickname"]
-        print(date_str)
+
         start_date = datetime.strptime(date_str, "%Y-%m-%d")
 
         file_name = uuid.uuid4()
-        if check_if_usr_exist(nickname):
-            if gif_creator(start_date, time_delta, int(matrix_size), str(file_name),nickname):
 
-                return redirect(url_for("display_mosaic", file_name=file_name))
+        if gif_creator(start_date, time_delta, int(matrix_size), str(file_name), nickname):
+            return redirect(url_for("display_mosaic", file_name=file_name))
 
     return render_template("select_mosaic.html")
 
@@ -101,16 +99,15 @@ def display_mosaic():
 
     return render_template("display_mosaic.html", file_name=file_name)
 
+
 # dynamically showing user the maximum size of mosaic gif
 @app.route("/about", methods=["GET"])
 def about():
-
     return render_template("about me.html")
 
 
 @app.route("/contact", methods=["GET"])
 def contact():
-
     return render_template("contact_me.html")
 
 
