@@ -46,11 +46,10 @@ def bubbles():
             number_of_bubbles = request.form['records_number']
             nickname = request.form['nickname']
 
-        file_name = "static/" + str(file_name)
 
         if check_if_usr_exist(nickname):
-            main(bubble_type, int(number_of_bubbles), nickname, file_name)
-            return redirect(url_for("display_bubble", file_name=file_name))
+            if main(bubble_type, int(number_of_bubbles), nickname, "static/" + str(file_name)):
+                return redirect(url_for("display_bubble", file_name=str(file_name)))
 
     return render_template("select_bubble.html")
 
@@ -84,16 +83,14 @@ def mosaic():
             matrix_size = request.form["matrix_size"]
             time_delta = request.form["time_delta"]
             nickname = request.form["nickname"]
-
+        print(date_str)
         start_date = datetime.strptime(date_str, "%Y-%m-%d")
 
         file_name = uuid.uuid4()
         if check_if_usr_exist(nickname):
-            gif_creator(start_date, time_delta,
-                        int(matrix_size), str(file_name),
-                        nickname)
+            if gif_creator(start_date, time_delta, int(matrix_size), str(file_name),nickname):
 
-            return redirect(url_for("display_mosaic", file_name=file_name))
+                return redirect(url_for("display_mosaic", file_name=file_name))
 
     return render_template("select_mosaic.html")
 

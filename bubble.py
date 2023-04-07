@@ -211,8 +211,6 @@ def main(bubble_type: str, size: int, nickname: str, file_name: str):
     return file_name
 
 
-def download_with_color():
-    pass
 
 # TODO: download_with_color
 # higher album pictures resolution ( but need to test this one whether it's fast enough )
