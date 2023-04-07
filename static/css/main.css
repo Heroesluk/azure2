@@ -192,6 +192,9 @@ label {
 
 }
 
+#submitbt2{
+    margin-left: 74%;
+}
 #submitbt:focus {
     background-color: crimson;
 }
@@ -224,12 +227,12 @@ label {
 
 }
 
-a{
+.topnav a, .info a{
     text-decoration: none;
     color: tomato;
     font-weight: bold;
 }
-a:visited{
+.topnav a:active, .info a:active{
     color: tomato;
 }
 
