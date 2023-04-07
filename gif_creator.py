@@ -10,6 +10,11 @@ from typing import List, Dict
 from PIL import Image
 from requests_futures.sessions import FuturesSession
 import io
+from dotenv import load_dotenv
+
+load_dotenv()
+lastfmkey = os.getenv("lastfmkey")
+assert lastfmkey
 
 files = []
 
@@ -52,8 +57,8 @@ def prepare_timeperiod_album_requests(start_date: datetime, time_delta: relative
     links = {}
     while start_date < end_date:
         link = "http://ws.audioscrobbler.com/2.0/?method=user.getweeklyalbumchart&user={}" \
-               "&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&from={}&to={}&limit={}". \
-            format(username, int(start_date.timestamp()), int((start_date + time_delta).timestamp()), limit)
+               "&api_key={}&format=json&from={}&to={}&limit={}". \
+            format(username, lastfmkey, int(start_date.timestamp()), int((start_date + time_delta).timestamp()), limit)
 
         start_date += time_delta
 
@@ -117,7 +122,7 @@ def get_record_name(album: Album) -> str:
 def top_albums_images(username: str):
     data = requests.get(
         "http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&use"
-        "r={}&limit=500&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json".format(username)).json()
+        "r={}&limit=500&api_key={}&format=json".format(username, lastfmkey)).json()
 
     return {sanitize_filename(i['artist']['name'] + "_" + i['name']): i['image'][3]['#text'] for i in
             data['topalbums']['album']}
@@ -182,12 +187,9 @@ def get_img_links_manually(albums: List[str]) -> Dict[str, str]:
     # record is in format of artistName_albumName
     for record in albums:
         artist, album_name = record.split('_')
-        print("http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_"
-              "key=d6e02ae58fcf6daaea788ce99c879f9c&artist={}&album={}&format=json".format(artist,
-                                                                                           album_name))
+
         links[record] = ("http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_"
-                         "key=d6e02ae58fcf6daaea788ce99c879f9c&artist={}&album={}&format=json".format(artist,
-                                                                                                      album_name))
+                         "key={}&artist={}&album={}&format=json".format(lastfmkey, artist, album_name))
 
     session = FuturesSession(max_workers=20)
     futures = []
