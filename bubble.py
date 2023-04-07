@@ -8,6 +8,10 @@ import random
 from requests_futures.sessions import FuturesSession
 
 from pathvalidate import sanitize_filename
+from dotenv import load_dotenv
+load_dotenv()
+lastfmkey = os.getenv("lastfmkey")
+assert lastfmkey
 
 
 class ConvertToCarthesian:
@@ -66,13 +70,13 @@ since the whole purpose of this script it to display most listened artists,
 
 def get_top_listened_artists_with_img_links(user: str, limit: int):
     data = requests.get(
-        "http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&limit={}&format=json".format(
-            user, limit))
+        "http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user={}&api_key={}&limit={}&format=json".format(
+            user, lastfmkey, limit))
     top_artists = data.json()['topartists']
 
     top_albums = requests.get(
-        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit=500'.format(
-            user, limit)).json()['topalbums']
+        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key={}&format=json&limit=500'.format(
+            user, lastfmkey, limit)).json()['topalbums']
 
     artists_data = {}
     keys = {}
@@ -94,11 +98,11 @@ def get_top_listened_artists_with_img_links(user: str, limit: int):
 ##size 100 is most optimal upper limit, after it circlify slows downs significantly
 def get_top_listened_albums_with_img_links(user: str, limit: int):
     print(
-        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit={}'.format(
-            user, limit))
+        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key={}&format=json&limit={}'.format(
+            user,lastfmkey, limit))
     images_data = requests.get(
-        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key=d6e02ae58fcf6daaea788ce99c879f9c&format=json&limit={}'.format(
-            user, limit)).json()
+        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key={}&format=json&limit={}'.format(
+            user, lastfmkey, limit)).json()
 
     artists_data = {}
     keyz = {}
