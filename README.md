@@ -8,6 +8,14 @@ lastfm scrobbling feature, and public lastfm api to create visualizations of use
 ##### GIF-Mosaic
 ![alt text](https://github.com/Heroesluk/azure2/blob/add_other/static/movie2readme.gif)
 
+##### Bubble-Chart
+![alt text](https://github.com/Heroesluk/azure2/blob/add_other/static/example2readme.png)
+
+##### Color-Chart
+![alt text](https://github.com/Heroesluk/azure2/blob/add_other/static/colormosaicreadme.jpg)
+
+
+
 ## Okay but what is LastFM in the first place?
 
 Last.fm is a music streaming and recommendation service that allows users to create personalized music profiles, discover new music, and connect with other music enthusiasts.
