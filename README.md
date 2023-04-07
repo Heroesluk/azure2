@@ -3,6 +3,11 @@
 This is repo of pythons scripts, i created over the past year or so that utilize
 lastfm scrobbling feature, and public lastfm api to create visualizations of user listening history.
 
+### Tools:
+
+##### GIF-Mosaic
+![alt text](https://github.com/Heroesluk/azure2/blob/main/static/movie.gif "Logo Title Text 1")
+
 ## Okay but what is LastFM in the first place?
 
 Last.fm is a music streaming and recommendation service that allows users to create personalized music profiles, discover new music, and connect with other music enthusiasts.
