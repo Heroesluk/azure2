@@ -1,3 +1,4 @@
+import io
 import os
 from concurrent.futures import as_completed
 
@@ -9,6 +10,7 @@ from requests_futures.sessions import FuturesSession
 
 from pathvalidate import sanitize_filename
 from dotenv import load_dotenv
+
 load_dotenv()
 lastfmkey = os.getenv("lastfmkey")
 assert lastfmkey
@@ -95,11 +97,8 @@ def get_top_listened_artists_with_img_links(user: str, limit: int):
     return artists_data
 
 
-##size 100 is most optimal upper limit, after it circlify slows downs significantly
+# format of {artist_albumname: ( play_count, img_link )
 def get_top_listened_albums_with_img_links(user: str, limit: int):
-    print(
-        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key={}&format=json&limit={}'.format(
-            user,lastfmkey, limit))
     images_data = requests.get(
         'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key={}&format=json&limit={}'.format(
             user, lastfmkey, limit)).json()
@@ -126,11 +125,23 @@ def async_down(_data):
             future.name = artist_name
             futures.append(future)
 
+
+    images = {}
+
     for future in as_completed(futures):
         resp = future.result()
 
-        with open('Bubbles/{}.png'.format(future.name), 'wb') as f:
-            f.write(resp.content)
+        if resp.ok:
+            f = io.BytesIO(resp.content)
+            images[future.name] = Image.open(f)
+
+        else:
+            print("Couldnt download image {}".format(future.name))
+
+        # with open('Bubbles/{}.png'.format(future.name), 'wb') as f:
+        #     f.write(resp.content)
+
+    return images
 
 
 def image_to_circle(img: Image):
@@ -157,12 +168,15 @@ def main(bubble_type: str, size: int, nickname: str, file_name: str):
     else:
         raise AttributeError("Incorrect bubble type")
 
+
     if size > 100 or size < 10:
         raise AttributeError("Incorrect size")
     elif len(nickname) == 0:
         raise AttributeError("No nickname specified")
 
-    async_down(artist_data)
+    # download images to memory
+    images = async_down(artist_data)
+
 
     data = [{'id': k, 'datum': pow(float(v[0]), 1.5)} for k, v in artist_data.items()]
     circles = circ.circlify(data, show_enclosure=False)
@@ -177,15 +191,16 @@ def main(bubble_type: str, size: int, nickname: str, file_name: str):
 
         name = circle.ex['id']
         try:
-            img = Image.open("Bubbles/" + name + ".png")
+            img = images[name]
 
             img = image_to_circle(img)
             img = img.resize((int(u - l), int(low - r)))
 
             im.paste(img, (int(l), int(r)), img)
-        except (FileNotFoundError, UnidentifiedImageError, ValueError):
+        except (FileNotFoundError, UnidentifiedImageError, ValueError, KeyError):
             print(name)
 
+    im.show()
     im.save("static/{}.png".format(file_name))
 
 
@@ -195,3 +210,5 @@ def download_with_color():
 # TODO: download_with_color
 # higher album pictures resolution ( but need to test this one whether it's fast enough )
 # higher picture resolution
+
+main("album",60,"heroesluk","output")

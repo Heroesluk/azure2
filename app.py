@@ -35,7 +35,7 @@ def home():
 @app.route("/bubbles", methods=["GET", "POST"])
 def bubbles():
     if request.method == "POST":
-        file_name = uuid.uuid1()
+        file_name = uuid.uuid4()
 
         if len(request.form.keys()) == 0:
             bubble_type = "album"
@@ -85,7 +85,7 @@ def mosaic():
 
         start_date = datetime.strptime(date_str, "%Y-%m-%d")
 
-        file_name = uuid.uuid1()
+        file_name = uuid.uuid4()
         if check_if_usr_exist(nickname):
             gif_creator(start_date, time_delta,
                         int(matrix_size), str(file_name),

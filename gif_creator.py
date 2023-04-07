@@ -231,11 +231,15 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, file_name: s
                                                                     time_delta,
                                                                     (matrix_size * matrix_size) + 2, username)
 
+
+    print(top_albums_per_timeperiod_json)
+
     # create dict where key is date, and value is list of Album instances
     # corresponding to most listened to albums for specified time period
     top_albums_per_timeperiod = {}
     for date, _json in top_albums_per_timeperiod_json.items():
         top_albums_per_timeperiod[date] = get_top_albums_list(_json)
+
 
     # extract required links and download album covers to memory
     links = get_required_images_links(top_albums_per_timeperiod, username)
