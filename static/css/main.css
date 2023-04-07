@@ -192,6 +192,9 @@ label {
 
 }
 
+#submitbt2{
+    margin-left: 74%;
+}
 #submitbt:focus {
     background-color: crimson;
 }

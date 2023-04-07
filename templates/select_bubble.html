@@ -8,26 +8,36 @@
     </div>
     <div class="info">
         Create bubble-chart, where the number of your artist/album scrobbles defines size
-    of each bubble
+        of each bubble
     </div>
 
     <form action="#" method="post">
         <div class="vertical_container" id="bubble_select_container">
-            <input id="input_name" type="text" name="nickname" placeholder="Select your lastfm nickname" required>
-            <input id="input_records" type="number" name="records_number" placeholder="How many records do you want
- to include"
-                   min="10" max="150" required>
             <div class="vertical_form">
-                <label for="record_type">Select whether you want to create bubble from top albums, or top
-                    artists</label>
+                <label for="nickname">Lastfm: </label>
+                <input type="text" name="nickname"
+                       id="input_name" placeholder="nickname" required>
+            </div>
+            <div class="vertical_form">
+                <label for="input_records">Select number of records for chart: </label>
+                <input id="input_records" type="number" name="records_number"
+                       value="50" min="10" max="150" required>
+            </div>
+
+            <div class="vertical_form">
+                <label for="record_type">Select whether you want to create bubble <br> from  albums, or
+                    artists: </label>
                 <select id="record_type" name="record_type">
                     <option value="album">albums</option>
                     <option value="artist">artists</option>
                 </select>
             </div>
 
+            <div class="vertical_form">
+                <input id="submitbt2" type="submit">
 
-            <input class="submit_btn" type="submit">
+            </div>
+
 
         </div>
 
