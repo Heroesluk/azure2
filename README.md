@@ -6,13 +6,13 @@ lastfm scrobbling feature, and public lastfm api to create visualizations of use
 ### Tools:
 
 ##### GIF-Mosaic
-![alt text](https://github.com/Heroesluk/azure2/blob/add_other/static/movie2readme.gif)
+![alt text](https://github.com/Heroesluk/azure2/blob/add_other/static/examples/movie2readme.gif)
 
 ##### Bubble-Chart
-![alt text](https://github.com/Heroesluk/azure2/blob/add_other/static/example2readme.png)
+![alt text](https://github.com/Heroesluk/azure2/blob/add_other/static/examples/example2readme.png)
 
 ##### Color-Chart
-![alt text](https://github.com/Heroesluk/azure2/blob/add_other/static/colormosaicreadme.jpg)
+![alt text](https://github.com/Heroesluk/azure2/blob/add_other/static/examples/colormosaicreadme.jpg)
 
 
 
