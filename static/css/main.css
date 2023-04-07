@@ -22,6 +22,9 @@ body {
     background-color: #333;
     padding-top: 5px;
     padding-bottom: 5px;
+    position: fixed; /* Set the navbar to fixed position */
+    top: 0; /* Position the navbar at the top of the page */
+    width: 100%;
 
 }
 
@@ -192,9 +195,10 @@ label {
 
 }
 
-#submitbt2{
+#submitbt2 {
     margin-left: 74%;
 }
+
 #submitbt:focus {
     background-color: crimson;
 }
@@ -227,28 +231,32 @@ label {
 
 }
 
-.topnav a, .info a{
+.topnav a, .info a {
     text-decoration: none;
     color: tomato;
     font-weight: bold;
 }
-.topnav a:active, .info a:active{
+
+.topnav a:active, .info a:active {
     color: tomato;
 }
 
-#wrapper a{
+#wrapper a {
     text-decoration: none;
 }
-#wrapper a:visited{
+
+#wrapper a:visited {
     color: white;
 }
-.go_back_button:hover{
+
+.go_back_button:hover {
     background-color: crimson;
 }
 
-#random_button{
+#random_button {
     width: 18%;
 }
-#random_button:hover{
+
+#random_button:hover {
     background-color: crimson;
 }

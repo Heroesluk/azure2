@@ -218,7 +218,7 @@ def create_gif(images_dict, file_name):
     imgs[0].save("static/{}.gif".format(file_name), save_all=True, append_images=imgs[1:], optimize=False, loop=0,
                  duration=1000)
 
-    return imgs[0]
+    return file_name + ".gif"
 
 
 def gif_creator(start_date: datetime, delta: str, matrix_size: int, file_name: str, username: str,
@@ -230,6 +230,9 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, file_name: s
     top_albums_per_timeperiod_json = fav_albums_per_timeperiod_json(start_date,
                                                                     time_delta,
                                                                     (matrix_size * matrix_size) + 2, username)
+
+    if not top_albums_per_timeperiod_json:
+        return None
 
     # create dict where key is date, and value is list of Album instances
     # corresponding to most listened to albums for specified time period
@@ -256,7 +259,13 @@ def gif_creator(start_date: datetime, delta: str, matrix_size: int, file_name: s
                                   date_key=date)
             matrixes[date]: Dict[datetime, Image.Image] = temp
 
-    return create_gif(matrixes, file_name)
+    if matrixes:
+        return create_gif(matrixes, file_name)
+
+    return None
+
 
 # TODO: albums should remain in the same places
 # add end_date functionality
+
+

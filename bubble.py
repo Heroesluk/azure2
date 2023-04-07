@@ -1,5 +1,7 @@
+import io
 import os
 from concurrent.futures import as_completed
+from typing import Dict
 
 from PIL import Image, ImageDraw, UnidentifiedImageError
 import requests
@@ -9,6 +11,7 @@ from requests_futures.sessions import FuturesSession
 
 from pathvalidate import sanitize_filename
 from dotenv import load_dotenv
+
 load_dotenv()
 lastfmkey = os.getenv("lastfmkey")
 assert lastfmkey
@@ -58,16 +61,13 @@ class ConvertToCarthesian:
         return abs_y
 
 
-"""Since lastfm refuse to give image links for gettopartists
-it has to be done manually by fetching albums, and then match album covers with corresponding artists
+"""Since lastfm refuse to give image links directly for artists, when calling gettopartists
+it has to be done manually by fetching albums, and then matching album covers with corresponding artists
 since the whole purpose of this script it to display most listened artists,
- we can assume that artist from top50 will have at least 1 album within top500 albums
-
+ we can assume that artist from top100 will have at least 1 album within top500 albums
 
  Returns dict in format of {artist_name: (play_counts, img_link)}
  """
-
-
 def get_top_listened_artists_with_img_links(user: str, limit: int):
     data = requests.get(
         "http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user={}&api_key={}&limit={}&format=json".format(
@@ -80,7 +80,10 @@ def get_top_listened_artists_with_img_links(user: str, limit: int):
 
     artists_data = {}
     keys = {}
-    ##TODO: change image size depending on the size
+    if not data.ok:
+        return {}
+
+        ##TODO: change image size depending on the size
     for i in top_albums['album']:
         if i['artist']['name'] not in keys.keys():
             # {artist_name:image_link} where 2 corresponds to size of image
@@ -88,6 +91,7 @@ def get_top_listened_artists_with_img_links(user: str, limit: int):
 
     for i in top_artists['artist']:
         try:
+            # assign album cover to the artists
             artists_data[sanitize_filename(i['name'])] = (float(i['playcount']), keys[i['name']])
         except KeyError:
             print("No image for {}".format(i['name']))
@@ -95,29 +99,27 @@ def get_top_listened_artists_with_img_links(user: str, limit: int):
     return artists_data
 
 
-##size 100 is most optimal upper limit, after it circlify slows downs significantly
+# format of {artist_albumname: ( play_count, img_link )
 def get_top_listened_albums_with_img_links(user: str, limit: int):
-    print(
-        'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key={}&format=json&limit={}'.format(
-            user,lastfmkey, limit))
     images_data = requests.get(
         'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user={}&api_key={}&format=json&limit={}'.format(
-            user, lastfmkey, limit)).json()
+            user, lastfmkey, limit))
 
     artists_data = {}
     keyz = {}
+    if not images_data.ok:
+        return artists_data
 
-    for i in images_data['topalbums']['album']:
+    for i in images_data.json()['topalbums']['album']:
         if i['artist']['name'] not in keyz.keys():
             artists_data[sanitize_filename(i['name'])] = (i['playcount'], i['image'][3]['#text'])
 
     return artists_data
 
 
-def async_down(_data):
+# Download album/artist images, return them as a dict there the key is artist_albumName
+def async_down(_data) -> Dict[str, Image.Image]:
     session = FuturesSession(max_workers=20)
-    if not os.path.exists("Bubbles"):
-        os.makedirs("Bubbles")
     futures = []
 
     for artist_name, (play_count, link) in _data.items():
@@ -126,16 +128,22 @@ def async_down(_data):
             future.name = artist_name
             futures.append(future)
 
+    images = {}
     for future in as_completed(futures):
         resp = future.result()
+        if resp.ok:
+            f = io.BytesIO(resp.content)
+            images[future.name] = Image.open(f)
+        else:
+            print("Couldnt download image {}".format(future.name))
 
-        with open('Bubbles/{}.png'.format(future.name), 'wb') as f:
-            f.write(resp.content)
+    return images
 
 
+# "crops" image to make it circle-shaped
+# the resize-up -> resize-down basically works as antyaliassing for border of circle
 def image_to_circle(img: Image):
     ##TODO: maybe some optimalization? need to test if predefined
-    ##mask size wont break anything
     bigsize = (img.size[0] * 3, img.size[1] * 3)
     mask = Image.new('L', bigsize, 0)
     draw = ImageDraw.Draw(mask)
@@ -144,6 +152,14 @@ def image_to_circle(img: Image):
     img.putalpha(mask)
 
     return img
+
+
+"""
+bubble_type: 'album' or 'artist': either creates top artists, or top albums bubble chart
+size: 1 to N, there's no hard limit for size, but due to circlify algorithm anything above 100 will be much slower
+nickname: lastfm nickname
+filename: absolute or relative path, no file extension, it's always .png 
+"""
 
 
 def main(bubble_type: str, size: int, nickname: str, file_name: str):
@@ -157,12 +173,16 @@ def main(bubble_type: str, size: int, nickname: str, file_name: str):
     else:
         raise AttributeError("Incorrect bubble type")
 
+    if not artist_data:
+        return None
+
     if size > 100 or size < 10:
         raise AttributeError("Incorrect size")
     elif len(nickname) == 0:
         raise AttributeError("No nickname specified")
 
-    async_down(artist_data)
+    # download images to memory
+    images = async_down(artist_data)
 
     data = [{'id': k, 'datum': pow(float(v[0]), 1.5)} for k, v in artist_data.items()]
     circles = circ.circlify(data, show_enclosure=False)
@@ -177,20 +197,20 @@ def main(bubble_type: str, size: int, nickname: str, file_name: str):
 
         name = circle.ex['id']
         try:
-            img = Image.open("Bubbles/" + name + ".png")
+            img = images[name]
 
             img = image_to_circle(img)
             img = img.resize((int(u - l), int(low - r)))
 
             im.paste(img, (int(l), int(r)), img)
-        except (FileNotFoundError, UnidentifiedImageError, ValueError):
+        except (FileNotFoundError, UnidentifiedImageError, ValueError, KeyError):
             print(name)
 
-    im.save("static/{}.png".format(file_name))
+    im.save("{}.png".format(file_name))
+
+    return file_name
 
 
-def download_with_color():
-    pass
 
 # TODO: download_with_color
 # higher album pictures resolution ( but need to test this one whether it's fast enough )
