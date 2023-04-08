@@ -8,6 +8,7 @@ from PIL.Image import Image
 from flask import Flask, render_template, request, redirect, url_for
 from lastfmtools.gif_creator import gif_creator
 from lastfmtools.bubble import bubble_chart
+
 app = Flask(__name__)
 
 
@@ -87,7 +88,10 @@ def mosaic():
 
         file_name = uuid.uuid4()
 
-        if gif_creator(start_date, time_delta, int(matrix_size), str(file_name), nickname):
+        mosaic = gif_creator(start_date, time_delta, int(matrix_size), nickname)
+        if mosaic:
+            mosaic.save("static/{}.gif".format(file_name),save_all=True)
+
             return redirect(url_for("display_mosaic", file_name=file_name))
 
     return render_template("select_mosaic.html")
