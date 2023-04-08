@@ -6,11 +6,9 @@ import flask
 import requests
 from PIL.Image import Image
 from flask import Flask, render_template, request, redirect, url_for
-
-from gif_creator import gif_creator
-
+from lastfmtools.gif_creator import gif_creator
+from lastfmtools.bubble import bubble_chart
 app = Flask(__name__)
-from bubble import main
 
 
 def clean_up():
@@ -48,7 +46,9 @@ def bubbles():
             number_of_bubbles = request.form['records_number']
             nickname = request.form['nickname']
 
-        if main(bubble_type, int(number_of_bubbles), nickname, "static/" + str(file_name)):
+        bubble = bubble_chart(bubble_type, int(number_of_bubbles), nickname, "static/" + str(file_name))
+        if bubble:
+            bubble.save("static/{}.png".format(file_name))
             return redirect(url_for("display_bubble", file_name=str(file_name)))
 
     return render_template("select_bubble.html")

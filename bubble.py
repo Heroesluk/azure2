@@ -162,7 +162,7 @@ filename: absolute or relative path, no file extension, it's always .png
 """
 
 
-def main(bubble_type: str, size: int, nickname: str, file_name: str):
+def bubble_chart(bubble_type: str, size: int, nickname: str, file_name: str):
     img_size = 1000
     R = int(img_size / 2)
 

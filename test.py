@@ -28,7 +28,7 @@ def clean_up():
 
 
 from gif_creator import gif_creator, get_img_links_manually, Album, get_record_name
-from bubble import main
+from bubble import bubble_chart
 
 import warnings
 
@@ -38,8 +38,8 @@ class MyTestCase(unittest.TestCase):
     def test_bubbles(self):
         warnings.filterwarnings(action="ignore", message="unclosed", category=ResourceWarning)
 
-        self.assertEqual(main("album", 50, "lkdjflkshdjfkhdskjfh", "TestOutputs/1"), None)
-        self.assertEqual(main("album", 50, "heroesluk", "TestOutputs/3"), "TestOutputs/3")
+        self.assertEqual(bubble_chart("album", 50, "lkdjflkshdjfkhdskjfh", "TestOutputs/1"), None)
+        self.assertEqual(bubble_chart("album", 50, "heroesluk", "TestOutputs/3"), "TestOutputs/3")
 
     def test_gif(self):
         warnings.filterwarnings(action="ignore", message="unclosed", category=ResourceWarning)
